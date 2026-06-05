@@ -701,3 +701,113 @@ body::before {
 .positions-table tbody tr:nth-child(3) { animation-delay: 0.15s; }
 .positions-table tbody tr:nth-child(4) { animation-delay: 0.2s; }
 .positions-table tbody tr:nth-child(5) { animation-delay: 0.25s; }
+
+/* ============================================================
+   COMPACT & MOBILE-FRIENDLY ENHANCEMENTS
+   ============================================================ */
+
+/* Strategy color coding based on direction */
+.strategy {
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: inline-block;
+}
+
+.strategy.strategy-long {
+    color: var(--success);
+    background: var(--success-light);
+    border: 1px solid var(--success);
+}
+
+.strategy.strategy-short {
+    color: var(--danger);
+    background: var(--danger-light);
+    border: 1px solid var(--danger);
+}
+
+/* Compact cell styling */
+.symbol-cell {
+    font-weight: 700;
+    color: var(--gray-900);
+    font-size: 15px;
+}
+
+.price-cell {
+    font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-700);
+}
+
+.qty-cell {
+    font-weight: 600;
+    color: var(--gray-600);
+}
+
+/* Tighter table spacing for compact view */
+.positions-table th,
+.positions-table td {
+    padding: 16px 12px;
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 768px) {
+    .positions-table th,
+    .positions-table td {
+        padding: 12px 8px;
+        font-size: 12px;
+    }
+    
+    .symbol-cell {
+        font-size: 13px;
+    }
+    
+    .price-cell {
+        font-size: 11px;
+    }
+    
+    .badge-type {
+        padding: 4px 10px;
+        font-size: 10px;
+    }
+    
+    .strategy {
+        padding: 3px 8px;
+        font-size: 11px;
+    }
+    
+    .pnl {
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+}
+
+/* Extra compact mode for small phones */
+@media (max-width: 480px) {
+    .positions-table {
+        min-width: 800px;  /* Reduced from 1200px */
+    }
+    
+    .positions-table th,
+    .positions-table td {
+        padding: 10px 6px;
+        font-size: 11px;
+    }
+    
+    .header {
+        padding: 20px 16px;
+    }
+    
+    .title {
+        font-size: 22px;
+    }
+    
+    .stat-card {
+        padding: 16px 20px;
+    }
+    
+    .stat-value {
+        font-size: 22px;
+    }
+}
