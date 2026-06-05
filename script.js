@@ -5,7 +5,7 @@
 const CONFIG = {
     SHEET_ID: 'YOUR_GOOGLE_SHEET_ID_HERE',  // ⚠️ REPLACE THIS
     API_KEY: 'YOUR_GOOGLE_API_KEY_HERE',     // ⚠️ REPLACE THIS
-    RANGE: 'Sheet1!A2:M51',                  // Reading from Sheet1 tab
+    RANGE: 'Sheet1!A2:N51',                  // Reading columns A to N
     REFRESH_INTERVAL: 5 * 60 * 1000,         // 5 minutes
 };
 
@@ -20,10 +20,11 @@ const COLUMNS = {
     DIRECTION: 6,       // Column G
     QTY: 7,             // Column H
     ENTRY_DATE: 8,      // Column I (not used in display)
-    ENTRY_PRICE: 9,     // Column J - Now from sheet directly
-    LTP: 10,            // Column K
-    PNL: 11,            // Column L - Now from sheet directly
-    STATUS: 12          // Column M
+    ENTRY_PRICE: 9,     // Column J
+    EXIT_DATE: 10,      // Column K (not used in display)
+    LTP: 11,            // Column L
+    STATUS: 12,         // Column M
+    PNL: 13             // Column N
 };
 
 // ============================================================
@@ -77,9 +78,9 @@ function processData(rows) {
             expiry: row[COLUMNS.EXPIRY] || '',
             direction: row[COLUMNS.DIRECTION] || '',
             qty: row[COLUMNS.QTY] || '0',
-            entryPrice: row[COLUMNS.ENTRY_PRICE] || '0',  // Directly from sheet
+            entryPrice: row[COLUMNS.ENTRY_PRICE] || '0',
             ltp: row[COLUMNS.LTP] || '0',
-            pnl: row[COLUMNS.PNL] || '0'  // Directly from sheet (already calculated)
+            pnl: row[COLUMNS.PNL] || '0'
         }));
     
     populateFilters();
