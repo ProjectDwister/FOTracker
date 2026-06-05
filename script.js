@@ -1,4 +1,17 @@
 // ============================================================
+// TEST CONFIGURATION - Remove after fixing
+// ============================================================
+
+console.log('📋 Configuration Check:');
+console.log('Sheet ID:', CONFIG.SHEET_ID);
+console.log('API Key:', CONFIG.API_KEY ? 'Set (hidden)' : 'NOT SET');
+console.log('Range:', CONFIG.RANGE);
+
+// Test URL (will show in browser console)
+const testUrl = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SHEET_ID}/values/${CONFIG.RANGE}?key=${CONFIG.API_KEY}`;
+console.log('🔗 Test this URL in your browser:', testUrl.replace(CONFIG.API_KEY, 'YOUR_API_KEY'));
+
+// ============================================================
 // CONFIGURATION
 // ============================================================
 
