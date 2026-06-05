@@ -3,11 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Derivatives Tracker</title>
+    <title>Derivatives Tracker - Live Dashboard</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
@@ -16,20 +13,20 @@
             <div class="header-content">
                 <h1 class="title">
                     <span class="title-icon">📊</span>
-                    Live Derivatives Tracker
+                    Derivatives Tracker
                 </h1>
                 <div class="header-stats">
                     <div class="stat-card">
                         <span class="stat-label">Open Positions</span>
-                        <span class="stat-value" id="position-count">—</span>
+                        <span class="stat-value" id="totalPositions">-</span>
                     </div>
                     <div class="stat-card">
                         <span class="stat-label">Total P&L</span>
-                        <span class="stat-value pnl" id="total-pnl">—</span>
+                        <span class="stat-value pnl" id="totalPnL">₹0.00</span>
                     </div>
                     <div class="stat-card">
                         <span class="stat-label">Last Updated</span>
-                        <span class="stat-value small" id="last-update">—</span>
+                        <span class="stat-value small" id="lastUpdated">-</span>
                     </div>
                 </div>
             </div>
@@ -38,80 +35,79 @@
         <!-- Filters -->
         <div class="filters">
             <div class="filter-group">
-                <label for="filter-strategy">Strategy</label>
-                <select id="filter-strategy" class="filter-select">
+                <label for="strategyFilter">Strategy</label>
+                <select id="strategyFilter" class="filter-select">
                     <option value="">All Strategies</option>
                 </select>
             </div>
             <div class="filter-group">
-                <label for="filter-exchange">Exchange</label>
-                <select id="filter-exchange" class="filter-select">
-                    <option value="">All Exchanges</option>
+                <label for="symbolFilter">Symbol</label>
+                <select id="symbolFilter" class="filter-select">
+                    <option value="">All Symbols</option>
                 </select>
             </div>
             <div class="filter-group">
-                <label for="filter-type">Type</label>
-                <select id="filter-type" class="filter-select">
+                <label for="typeFilter">Type</label>
+                <select id="typeFilter" class="filter-select">
                     <option value="">All Types</option>
+                    <option value="CE">CE</option>
+                    <option value="PE">PE</option>
+                    <option value="FUT">FUT</option>
                 </select>
             </div>
-            <button class="refresh-btn" id="refresh-btn">
-                <span class="refresh-icon">↻</span>
+            <button class="refresh-btn" onclick="loadData()">
+                <span class="refresh-icon">🔄</span>
                 Refresh
             </button>
         </div>
 
-        <!-- Loading State -->
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>Loading positions...</p>
-        </div>
-
-        <!-- Error State -->
-        <div class="error" id="error" style="display: none;">
-            <div class="error-icon">⚠️</div>
-            <h3>Failed to load data</h3>
-            <p id="error-message"></p>
-            <button class="retry-btn" onclick="loadData()">Retry</button>
-        </div>
-
-        <!-- Positions Table -->
-        <div class="table-container" id="table-container" style="display: none;">
+        <!-- Table -->
+        <div class="table-container">
             <table class="positions-table">
                 <thead>
                     <tr>
                         <th>Strategy</th>
-                        <th>Exchange</th>
                         <th>Symbol</th>
                         <th>Type</th>
-                        <th>Expiry</th>
                         <th>Strike</th>
-                        <th>Dir</th>
+                        <th>Expiry</th>
                         <th>Qty</th>
-                        <th>Entry Date</th>
                         <th>Entry Price</th>
                         <th>LTP</th>
                         <th>P&L</th>
                     </tr>
                 </thead>
-                <tbody id="positions-body">
-                    <!-- Rows will be inserted here -->
+                <tbody id="tableBody">
+                    <!-- Dynamic content -->
                 </tbody>
             </table>
         </div>
 
-        <!-- Empty State -->
-        <div class="empty-state" id="empty-state" style="display: none;">
-            <div class="empty-icon">📭</div>
-            <h3>No Open Positions</h3>
-            <p>All positions are currently closed or no data matches your filters.</p>
+        <!-- Loading State -->
+        <div id="loadingState" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Loading positions...</p>
         </div>
 
-        <!-- Footer -->
-        <footer class="footer">
-            <p>Data refreshes automatically every 5 minutes during market hours (9 AM - 5 PM IST)</p>
-        </footer>
+        <!-- Error State -->
+        <div id="errorState" class="error" style="display: none;">
+            <div class="error-icon">⚠️</div>
+            <h3>Unable to Load Data</h3>
+            <p id="errorMessage">Please check your configuration and try again.</p>
+            <button class="retry-btn" onclick="loadData()">Retry</button>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div class="empty-icon">📭</div>
+            <h3>No Open Positions</h3>
+            <p>No positions match your current filters.</p>
+        </div>
     </div>
+
+    <footer class="footer">
+        <p>🚀 Real-time Derivatives Dashboard | Auto-refreshes every 5 minutes</p>
+    </footer>
 
     <script src="script.js"></script>
 </body>
