@@ -29,37 +29,12 @@
                         <span class="stat-value small" id="lastUpdated">-</span>
                     </div>
                 </div>
+                <button class="refresh-btn" onclick="loadData()">
+                    <span class="refresh-icon">🔄</span>
+                    Refresh
+                </button>
             </div>
         </header>
-
-        <!-- Filters -->
-        <div class="filters">
-            <div class="filter-group">
-                <label for="strategyFilter">Strategy</label>
-                <select id="strategyFilter" class="filter-select">
-                    <option value="">All Strategies</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="symbolFilter">Symbol</label>
-                <select id="symbolFilter" class="filter-select">
-                    <option value="">All Symbols</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="typeFilter">Type</label>
-                <select id="typeFilter" class="filter-select">
-                    <option value="">All Types</option>
-                    <option value="CE">CE</option>
-                    <option value="PE">PE</option>
-                    <option value="FUT">FUT</option>
-                </select>
-            </div>
-            <button class="refresh-btn" onclick="loadData()">
-                <span class="refresh-icon">🔄</span>
-                Refresh
-            </button>
-        </div>
 
         <!-- Table -->
         <div class="table-container">
@@ -101,7 +76,7 @@
         <div id="emptyState" class="empty-state" style="display: none;">
             <div class="empty-icon">📭</div>
             <h3>No Open Positions</h3>
-            <p>No positions match your current filters.</p>
+            <p>There are currently no open positions.</p>
         </div>
     </div>
 
