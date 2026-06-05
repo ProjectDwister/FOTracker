@@ -92,13 +92,25 @@ async function loadData() {
 }
 
 function processData(rows) {
-    // Filter only "Open" positions and exclude empty rows
+    // Filter only "Open" positions with valid quantity and exclude empty rows
     allPositions = rows
         .filter(row => {
-            // Check if row has data and Status is "Open"
-            return row.length > COLUMNS.STATUS && 
-                   row[COLUMNS.STATUS] && 
-                   row[COLUMNS.STATUS].toString().trim().toLowerCase() === 'open';
+            // Check if row has minimum required data
+            if (!row || row.length <= COLUMNS.STATUS) return false;
+            
+            // Check if Status is "Open"
+            const status = row[COLUMNS.STATUS];
+            if (!status || status.toString().trim().toLowerCase() !== 'open') return false;
+            
+            // Check if Quantity exists and is not zero
+            const qty = row[COLUMNS.QTY];
+            if (!qty || qty.toString().trim() === '' || qty.toString().trim() === '0') return false;
+            
+            // Check if Symbol exists (basic data validation)
+            const symbol = row[COLUMNS.SYMBOL];
+            if (!symbol || symbol.toString().trim() === '') return false;
+            
+            return true;
         })
         .map(row => {
             // Parse P&L value - handle various formats
@@ -122,9 +134,8 @@ function processData(rows) {
             };
         });
     
-    console.log(`📊 Loaded ${allPositions.length} open positions`);
+    console.log(`📊 Loaded ${allPositions.length} open positions with quantity`);
 }
-
 function renderTable() {
     const tbody = document.getElementById('tableBody');
     
