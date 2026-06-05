@@ -42,14 +42,38 @@ async function loadData() {
     showLoading();
     
     try {
+        // Validate configuration
+        if (!CONFIG.SHEET_ID || CONFIG.SHEET_ID === 'YOUR_GOOGLE_SHEET_ID_HERE') {
+            throw new Error('Please configure SHEET_ID in script.js');
+        }
+        
+        if (!CONFIG.API_KEY || CONFIG.API_KEY === 'YOUR_GOOGLE_API_KEY_HERE') {
+            throw new Error('Please configure API_KEY in script.js');
+        }
+        
         const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SHEET_ID}/values/${CONFIG.RANGE}?key=${CONFIG.API_KEY}`;
+        
+        console.log('🔍 Fetching data from:', url.replace(CONFIG.API_KEY, 'API_KEY_HIDDEN'));
+        
         const response = await fetch(url);
         
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorData = await response.json().catch(() => ({}));
+            console.error('❌ API Error:', errorData);
+            
+            if (response.status === 400) {
+                throw new Error('Invalid request. Check Sheet ID, API Key, and range format.');
+            } else if (response.status === 403) {
+                throw new Error('Access denied. Make sure the sheet is public and API is enabled.');
+            } else if (response.status === 404) {
+                throw new Error('Sheet not found. Check Sheet ID and sheet name (Sheet1).');
+            } else {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
         }
         
         const data = await response.json();
+        console.log('✅ Data loaded successfully:', data);
         
         if (!data.values || data.values.length === 0) {
             showEmpty();
@@ -62,7 +86,7 @@ async function loadData() {
         hideAllStates();
         
     } catch (error) {
-        console.error('Error loading data:', error);
+        console.error('❌ Error loading data:', error);
         showError(error.message);
     }
 }
