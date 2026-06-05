@@ -3,8 +3,8 @@
 // ============================================================
 
 const CONFIG = {
-    SHEET_ID: 'YOUR_GOOGLE_SHEET_ID_HERE',  // ⚠️ REPLACE THIS
-    API_KEY: 'YOUR_GOOGLE_API_KEY_HERE',     // ⚠️ REPLACE THIS
+    SHEET_ID: '1Su_cw-0RyzHTFRP_aqolWtT956cmPHpJbojt2YbwZzc',  // ⚠️ REPLACE THIS
+    API_KEY: 'AIzaSyA9RuEF0WuE7W8K4vkd_rfKI2-6MSLpIc0',     // ⚠️ REPLACE THIS
     RANGE: 'Sheet1!A2:N51',                  // Reading columns A to N
     REFRESH_INTERVAL: 5 * 60 * 1000,         // 5 minutes
 };
