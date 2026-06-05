@@ -1,40 +1,27 @@
 // ============================================================
-// TEST CONFIGURATION - Remove after fixing
-// ============================================================
-
-console.log('📋 Configuration Check:');
-console.log('Sheet ID:', CONFIG.SHEET_ID);
-console.log('API Key:', CONFIG.API_KEY ? 'Set (hidden)' : 'NOT SET');
-console.log('Range:', CONFIG.RANGE);
-
-// Test URL (will show in browser console)
-const testUrl = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SHEET_ID}/values/${CONFIG.RANGE}?key=${CONFIG.API_KEY}`;
-console.log('🔗 Test this URL in your browser:', testUrl.replace(CONFIG.API_KEY, 'YOUR_API_KEY'));
-
-// ============================================================
 // CONFIGURATION
 // ============================================================
 
 const CONFIG = {
     SHEET_ID: '1Su_cw-0RyzHTFRP_aqolWtT956cmPHpJbojt2YbwZzc',  // ⚠️ REPLACE THIS
     API_KEY: 'AIzaSyA9RuEF0WuE7W8K4vkd_rfKI2-6MSLpIc0',     // ⚠️ REPLACE THIS
-    RANGE: 'Sheet1!A2:N51',                  // Reading columns A to N
+    RANGE: 'Sheet1!A2:N',                    // Read all rows from A2 onwards
     REFRESH_INTERVAL: 5 * 60 * 1000,         // 5 minutes
 };
 
-// Column mapping for Sheet1
+// Column mapping for Sheet1 (0-indexed)
 const COLUMNS = {
     STRATEGY: 0,        // Column A
-    EXCHANGE: 1,        // Column B (not used in display)
+    EXCHANGE: 1,        // Column B
     SYMBOL: 2,          // Column C
     TYPE: 3,            // Column D
     STRIKE: 4,          // Column E
     EXPIRY: 5,          // Column F
     DIRECTION: 6,       // Column G
     QTY: 7,             // Column H
-    ENTRY_DATE: 8,      // Column I (not used in display)
+    ENTRY_DATE: 8,      // Column I
     ENTRY_PRICE: 9,     // Column J
-    EXIT_DATE: 10,      // Column K (not used in display)
+    EXIT_DATE: 10,      // Column K
     LTP: 11,            // Column L
     STATUS: 12,         // Column M
     PNL: 13             // Column N
@@ -45,7 +32,6 @@ const COLUMNS = {
 // ============================================================
 
 let allPositions = [];
-let filteredPositions = [];
 
 // ============================================================
 // MAIN FUNCTIONS
@@ -66,7 +52,7 @@ async function loadData() {
         
         const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SHEET_ID}/values/${CONFIG.RANGE}?key=${CONFIG.API_KEY}`;
         
-        console.log('🔍 Fetching data from:', url.replace(CONFIG.API_KEY, 'API_KEY_HIDDEN'));
+        console.log('🔍 Fetching data...');
         
         const response = await fetch(url);
         
@@ -86,7 +72,7 @@ async function loadData() {
         }
         
         const data = await response.json();
-        console.log('✅ Data loaded successfully:', data);
+        console.log('✅ Data loaded successfully');
         
         if (!data.values || data.values.length === 0) {
             showEmpty();
@@ -94,7 +80,8 @@ async function loadData() {
         }
         
         processData(data.values);
-        applyFilters();
+        renderTable();
+        updateStats();
         updateLastUpdated();
         hideAllStates();
         
@@ -105,94 +92,76 @@ async function loadData() {
 }
 
 function processData(rows) {
+    // Filter only "Open" positions and exclude empty rows
     allPositions = rows
-        .filter(row => row[COLUMNS.STATUS] === 'Open')
-        .map(row => ({
-            strategy: row[COLUMNS.STRATEGY] || '',
-            symbol: row[COLUMNS.SYMBOL] || '',
-            type: row[COLUMNS.TYPE] || '',
-            strike: row[COLUMNS.STRIKE] || '',
-            expiry: row[COLUMNS.EXPIRY] || '',
-            direction: row[COLUMNS.DIRECTION] || '',
-            qty: row[COLUMNS.QTY] || '0',
-            entryPrice: row[COLUMNS.ENTRY_PRICE] || '0',
-            ltp: row[COLUMNS.LTP] || '0',
-            pnl: row[COLUMNS.PNL] || '0'
-        }));
+        .filter(row => {
+            // Check if row has data and Status is "Open"
+            return row.length > COLUMNS.STATUS && 
+                   row[COLUMNS.STATUS] && 
+                   row[COLUMNS.STATUS].toString().trim().toLowerCase() === 'open';
+        })
+        .map(row => {
+            // Parse P&L value - handle various formats
+            let pnlValue = '0';
+            if (row[COLUMNS.PNL]) {
+                // Remove currency symbols, commas, and spaces
+                pnlValue = row[COLUMNS.PNL].toString().replace(/[₹$,\s]/g, '');
+            }
+            
+            return {
+                strategy: row[COLUMNS.STRATEGY] || '',
+                symbol: row[COLUMNS.SYMBOL] || '',
+                type: row[COLUMNS.TYPE] || '',
+                strike: row[COLUMNS.STRIKE] || '',
+                expiry: row[COLUMNS.EXPIRY] || '',
+                direction: row[COLUMNS.DIRECTION] || '',
+                qty: row[COLUMNS.QTY] || '0',
+                entryPrice: row[COLUMNS.ENTRY_PRICE] || '0',
+                ltp: row[COLUMNS.LTP] || '0',
+                pnl: pnlValue
+            };
+        });
     
-    populateFilters();
-}
-
-function populateFilters() {
-    const strategies = [...new Set(allPositions.map(p => p.strategy))].sort();
-    const symbols = [...new Set(allPositions.map(p => p.symbol))].sort();
-    
-    const strategySelect = document.getElementById('strategyFilter');
-    const symbolSelect = document.getElementById('symbolFilter');
-    
-    strategySelect.innerHTML = '<option value="">All Strategies</option>';
-    strategies.forEach(s => {
-        strategySelect.innerHTML += `<option value="${s}">${s}</option>`;
-    });
-    
-    symbolSelect.innerHTML = '<option value="">All Symbols</option>';
-    symbols.forEach(s => {
-        symbolSelect.innerHTML += `<option value="${s}">${s}</option>`;
-    });
-}
-
-function applyFilters() {
-    const strategyFilter = document.getElementById('strategyFilter').value;
-    const symbolFilter = document.getElementById('symbolFilter').value;
-    const typeFilter = document.getElementById('typeFilter').value;
-    
-    filteredPositions = allPositions.filter(position => {
-        return (!strategyFilter || position.strategy === strategyFilter) &&
-               (!symbolFilter || position.symbol === symbolFilter) &&
-               (!typeFilter || position.type === typeFilter);
-    });
-    
-    renderTable();
-    updateStats();
+    console.log(`📊 Loaded ${allPositions.length} open positions`);
 }
 
 function renderTable() {
     const tbody = document.getElementById('tableBody');
     
-    if (filteredPositions.length === 0) {
+    if (allPositions.length === 0) {
         showEmpty();
         return;
     }
     
-    tbody.innerHTML = filteredPositions.map(position => {
+    tbody.innerHTML = allPositions.map(position => {
         const pnlNum = parseFloat(position.pnl) || 0;
         const pnlClass = pnlNum >= 0 ? 'positive' : 'negative';
         
         // Color strategy based on direction
-        const strategyClass = position.direction === 'Long' ? 'strategy-long' : 'strategy-short';
+        const strategyClass = position.direction && position.direction.toLowerCase() === 'long' ? 'strategy-long' : 'strategy-short';
         
         return `
             <tr>
                 <td><span class="strategy ${strategyClass}">${escapeHtml(position.strategy)}</span></td>
                 <td class="symbol-cell">${escapeHtml(position.symbol)}</td>
                 <td><span class="badge-type ${escapeHtml(position.type)}">${escapeHtml(position.type)}</span></td>
-                <td>${escapeHtml(position.strike)}</td>
+                <td>${formatNumber(position.strike)}</td>
                 <td>${formatExpiry(position.expiry)}</td>
                 <td class="qty-cell">${formatNumber(position.qty)}</td>
-                <td class="price-cell">₹${formatNumber(position.entryPrice)}</td>
-                <td class="price-cell">₹${formatNumber(position.ltp)}</td>
-                <td><span class="pnl ${pnlClass}">₹${formatCurrency(pnlNum)}</span></td>
+                <td class="price-cell">${formatNumber(position.entryPrice)}</td>
+                <td class="price-cell">${formatNumber(position.ltp)}</td>
+                <td><span class="pnl ${pnlClass}">${formatPnL(pnlNum)}</span></td>
             </tr>
         `;
     }).join('');
 }
 
 function updateStats() {
-    const totalPnL = filteredPositions.reduce((sum, p) => sum + (parseFloat(p.pnl) || 0), 0);
+    const totalPnL = allPositions.reduce((sum, p) => sum + (parseFloat(p.pnl) || 0), 0);
     const pnlClass = totalPnL >= 0 ? 'positive' : 'negative';
     
-    document.getElementById('totalPositions').textContent = filteredPositions.length;
-    document.getElementById('totalPnL').textContent = `₹${formatCurrency(totalPnL)}`;
+    document.getElementById('totalPositions').textContent = allPositions.length;
+    document.getElementById('totalPnL').textContent = formatPnL(totalPnL);
     document.getElementById('totalPnL').className = `stat-value pnl ${pnlClass}`;
 }
 
@@ -200,16 +169,23 @@ function updateStats() {
 // HELPER FUNCTIONS
 // ============================================================
 
-function formatCurrency(num) {
-    return new Intl.NumberFormat('en-IN', {
+function formatPnL(num) {
+    const absNum = Math.abs(num);
+    const formatted = new Intl.NumberFormat('en-IN', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
-    }).format(Math.abs(num));
+    }).format(absNum);
+    
+    return num >= 0 ? `₹${formatted}` : `₹${formatted}`;
 }
 
 function formatNumber(val) {
-    const num = parseFloat(val);
+    // Remove any existing currency symbols
+    const cleanVal = val.toString().replace(/[₹$,\s]/g, '');
+    const num = parseFloat(cleanVal);
+    
     if (isNaN(num)) return val;
+    
     return new Intl.NumberFormat('en-IN', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
@@ -218,6 +194,8 @@ function formatNumber(val) {
 
 function formatExpiry(dateStr) {
     if (!dateStr) return '';
+    
+    // Try to parse the date
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) return dateStr;
     
@@ -273,14 +251,6 @@ function hideAllStates() {
     document.getElementById('emptyState').style.display = 'none';
     document.querySelector('.table-container').style.display = 'block';
 }
-
-// ============================================================
-// EVENT LISTENERS
-// ============================================================
-
-document.getElementById('strategyFilter').addEventListener('change', applyFilters);
-document.getElementById('symbolFilter').addEventListener('change', applyFilters);
-document.getElementById('typeFilter').addEventListener('change', applyFilters);
 
 // ============================================================
 // INITIALIZATION
