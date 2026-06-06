@@ -145,13 +145,11 @@ function renderTable() {
 
         return `<tr style="animation-delay:${i * 0.04}s">
             <td><span class="strategy-name">${esc(p.strategy)}</span></td>
-            <td class="symbol-cell ${dirClass}">${esc(p.symbol)}</td>
-            <td><span class="type-badge type-${esc(p.type)}">${esc(p.type)}</span></td>
-            <td class="mono-cell">${fmtStrike(p.strike)}</td>
+            <td>${fmtDerivative(p)}</td>
             <td class="expiry-cell">${fmtExpiry(p.expiry)}</td>
-            <td class="qty-cell">${fmtQty(p.qty)}</td>
-            <td class="mono-cell">${fmtPrice(p.entryPrice)}</td>
-            <td class="mono-cell ltp">${fmtPrice(p.ltp)}</td>
+            <td class="qty-cell text-right">${fmtQty(p.qty)}</td>
+            <td class="mono-cell text-right">${fmtPrice(p.entryPrice)}</td>
+            <td class="mono-cell ltp text-right">${fmtPrice(p.ltp)}</td>
             <td>
                 <span class="pnl-badge ${pnlClass}">${pnlSign}₹${fmtPnLAbs(pnlNum)}</span>
             </td>
@@ -175,15 +173,13 @@ function renderCards() {
 
         return `<div class="position-card" style="animation-delay:${i * 0.04}s">
             <div class="card-top-left">
-                <span class="card-symbol ${dirClass}">${esc(p.symbol)}</span>
-                <span class="type-badge type-${esc(p.type)}">${esc(p.type)}</span>
+                ${fmtDerivative(p)}
                 <span class="card-strategy">${esc(p.strategy)}</span>
             </div>
             <div class="card-top-right">
                 <span class="pnl-badge ${pnlClass}">${pnlSign}₹${fmtPnLAbs(pnlNum)}</span>
             </div>
             <div class="card-bottom-left">
-                <span class="card-meta">Strike ${fmtStrike(p.strike)}</span>
                 <span class="card-meta">Exp ${fmtExpiry(p.expiry)}</span>
                 <span class="card-meta">Qty ${fmtQty(p.qty)}</span>
                 <span class="card-entry">Entry ₹${fmtPrice(p.entryPrice)}</span>
@@ -257,14 +253,23 @@ function fmtPnLAbs(num) {
 function fmtExpiry(dateStr) {
     if (!dateStr) return '—';
     const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return dateStr; // return as-is if not a parseable date
+    if (isNaN(d.getTime())) return dateStr;
     const dd = String(d.getDate()).padStart(2, '0');
     const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const yy = String(d.getFullYear()).slice(-2);
-    return `${dd}-${mm}-${yy}`;
+    return `${dd}-${mm}`;
 }
 
-function esc(text) {
+function fmtDerivative(p) {
+    const isFut  = p.type.toUpperCase() === 'FUT';
+    const type   = isFut ? '' : `<span class="type-badge type-${esc(p.type)}">${esc(p.type)}</span>`;
+    const strike = !isFut && p.strike ? ` <span class="deriv-strike">${fmtStrike(p.strike)}</span>` : '';
+    return `<span class="deriv-wrap">
+        <span class="symbol-cell ${p.direction.toLowerCase() === 'long' ? 'long' : 'short'}">${esc(p.symbol)}</span>
+        ${type}${strike}
+    </span>`;
+}
+
+
     const d = document.createElement('div');
     d.textContent = text;
     return d.innerHTML;

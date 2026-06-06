@@ -224,10 +224,10 @@ body::before {
 
 .stat-tile {
     background: var(--surface);
-    padding: 24px 24px 20px;
+    padding: 16px 20px 14px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 6px;
     transition: background 0.2s;
 }
 
@@ -249,7 +249,7 @@ body::before {
 .stat-tile:last-child  { border-radius: 0 var(--r-xl) var(--r-xl) 0; }
 
 .stat-label {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 600;
     letter-spacing: 1px;
     text-transform: uppercase;
@@ -258,7 +258,7 @@ body::before {
 
 .stat-value {
     font-family: var(--font-mono);
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 600;
     letter-spacing: -0.5px;
     line-height: 1;
@@ -269,9 +269,9 @@ body::before {
 .stat-value .negative { color: var(--red); }
 
 .stat-sub {
-    font-size: 12px;
+    font-size: 10px;
     color: var(--text-3);
-    margin-top: 2px;
+    margin-top: 1px;
 }
 
 /* ============================================================
@@ -375,6 +375,23 @@ body::before {
     font-weight: 500;
     color: var(--text-2);
     white-space: nowrap;
+}
+
+/* Right-align utility for Qty / Entry / LTP headers and cells */
+.text-right { text-align: right !important; }
+
+/* Derivative cell — symbol + type badge + strike inline */
+.deriv-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+}
+
+.deriv-strike {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-3);
 }
 
 /* Symbol — coloured by direction */
@@ -630,21 +647,26 @@ body::before {
 /* ============================================================
    RESPONSIVE — MOBILE FIRST
    ============================================================ */
+
+/* Tablet portrait: already 4-col on laptop, drop to 2×2 below 768px */
 @media (max-width: 1024px) {
     .inner { padding: 0 20px; }
-    /* 4 → 2×2 on tablet and portrait mobile */
-    .stats-grid { grid-template-columns: repeat(2, 1fr); border-radius: var(--r-xl); }
-    .stat-tile:first-child { border-radius: var(--r-xl) 0 0 0; }
-    .stat-tile:nth-child(2){ border-radius: 0 var(--r-xl) 0 0; }
-    .stat-tile:nth-child(3){ border-radius: 0 0 0 var(--r-xl); }
-    .stat-tile:last-child  { border-radius: 0 0 var(--r-xl) 0; }
 }
 
+/* Portrait mobile — 2×2 grid */
 @media (max-width: 768px) {
     .inner { padding: 0 14px; }
     .topbar-inner { height: 52px; }
-    .stat-tile { padding: 16px 18px 12px; }
-    .stat-value { font-size: 20px; }
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        border-radius: var(--r-lg);
+    }
+    .stat-tile { padding: 14px 16px 12px; }
+    .stat-tile:first-child  { border-radius: var(--r-lg) 0 0 0; }
+    .stat-tile:nth-child(2) { border-radius: 0 var(--r-lg) 0 0; }
+    .stat-tile:nth-child(3) { border-radius: 0 0 0 var(--r-lg); }
+    .stat-tile:last-child   { border-radius: 0 0 var(--r-lg) 0; }
+    .stat-value { font-size: 16px; }
     .stats-section { padding-top: 20px; }
     .table-section { padding: 16px 0 32px; }
     .footer-inner { justify-content: center; }
@@ -655,8 +677,10 @@ body::before {
     .inner { padding: 0 12px; }
     .logo-dot { display: none; }
     .countdown-pill { display: none; }
-    .stat-value { font-size: 18px; }
-    .stat-label { font-size: 10px; }
+    .stat-value { font-size: 15px; }
+    .stat-label { font-size: 9px; }
+    .stat-sub   { font-size: 9px; }
+    .stat-tile  { padding: 12px 12px 10px; }
 }
 
 /* ============================================================
@@ -671,13 +695,21 @@ body::before {
     .live-badge { padding: 3px 8px; font-size: 10px; }
     .countdown-pill { padding: 3px 8px; font-size: 11px; }
 
-    /* Compact stats */
-    .stats-section { padding-top: 12px; }
-    .page-title { margin-bottom: 10px; font-size: 11px; }
-    .stat-tile { padding: 10px 14px 8px; gap: 4px; }
-    .stat-value { font-size: 16px; }
+    /* Compact stats — 4 in one row */
+    .stats-section { padding-top: 10px; }
+    .page-title { margin-bottom: 8px; font-size: 11px; }
+    .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+        border-radius: var(--r-lg);
+    }
+    .stat-tile:first-child  { border-radius: var(--r-lg) 0 0 var(--r-lg); }
+    .stat-tile:nth-child(2) { border-radius: 0; }
+    .stat-tile:nth-child(3) { border-radius: 0; }
+    .stat-tile:last-child   { border-radius: 0 var(--r-lg) var(--r-lg) 0; }
+    .stat-tile { padding: 8px 12px 7px; gap: 3px; }
+    .stat-value { font-size: 14px; }
     .stat-label { font-size: 9px; }
-    .stat-sub   { font-size: 10px; }
+    .stat-sub   { font-size: 9px; }
 
     /* Compact table section */
     .table-section { padding: 10px 0 20px; }
