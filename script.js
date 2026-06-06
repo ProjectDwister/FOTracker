@@ -131,20 +131,14 @@ function renderTable() {
     document.getElementById('positionsCount').textContent = `${count} row${count !== 1 ? 's' : ''}`;
 
     tbody.innerHTML = allPositions.map((p, i) => {
-        const pnlNum  = parseFloat(p.pnl) || 0;
+        const pnlNum   = parseFloat(p.pnl) || 0;
         const pnlClass = pnlNum >= 0 ? 'positive' : 'negative';
         const pnlSign  = pnlNum >= 0 ? '+' : '−';
         const dirClass = p.direction.toLowerCase() === 'long' ? 'long' : 'short';
-        const dirLabel = p.direction || 'SHORT';
 
         return `<tr style="animation-delay:${i * 0.04}s">
-            <td>
-                <div class="strategy-cell">
-                    <span class="dir-pill ${dirClass}">${esc(dirLabel)}</span>
-                    <span class="strategy-name">${esc(p.strategy)}</span>
-                </div>
-            </td>
-            <td class="symbol-cell">${esc(p.symbol)}</td>
+            <td><span class="strategy-name">${esc(p.strategy)}</span></td>
+            <td class="symbol-cell ${dirClass}">${esc(p.symbol)}</td>
             <td><span class="type-badge type-${esc(p.type)}">${esc(p.type)}</span></td>
             <td class="mono-cell">${fmtStrike(p.strike)}</td>
             <td class="expiry-cell">${fmtExpiry(p.expiry)}</td>
