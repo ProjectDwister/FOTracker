@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Derivatives Tracker</title>
+    <title>FO Tracker</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,14 +14,18 @@
     <!-- TOP NAV -->
     <nav class="topbar">
         <div class="inner topbar-inner">
-            <a href="#" class="logo">
-                <span class="logo-dot"></span>
-                <span>Derivatives Tracker</span>
+            <a href="#" class="logo" aria-label="FO Tracker home">
+                <span class="logo-mark">FO</span>
+                <span>FO Tracker</span>
             </a>
             <div class="topbar-right">
                 <div class="live-badge">
                     <span class="live-dot"></span>
                     <span class="label">Live</span>
+                </div>
+                <div class="freshness-pill" title="Last successful data refresh">
+                    <span class="label">Updated</span>
+                    <span id="topLastUpdated">--:--</span>
                 </div>
                 <div class="countdown-pill">
                     <span class="label">Refresh in</span>
@@ -31,10 +35,21 @@
         </div>
     </nav>
 
-    <!-- STATS -->
+    <!-- HERO / STATS -->
     <section class="stats-section">
         <div class="inner">
-            <p class="page-title">Portfolio Overview</p>
+            <div class="dashboard-hero">
+                <div>
+                    <p class="eyebrow">Live derivatives dashboard</p>
+                    <h1>Portfolio Overview</h1>
+                    <p class="hero-sub">Track open positions, realised P&amp;L, and live market movement in one clean workspace.</p>
+                </div>
+                <div class="market-chip">
+                    <span class="market-chip-dot"></span>
+                    NSE · Live
+                </div>
+            </div>
+
             <div class="stats-grid">
                 <div class="stat-tile">
                     <span class="stat-label">Open P&amp;L</span>
@@ -61,14 +76,16 @@
 
             <!-- Loading -->
             <div id="loadingState" style="display:flex">
-                <div class="loader-ring"></div>
+                <div class="state-icon-card loading-card">
+                    <div class="loader-ring"></div>
+                </div>
                 <p class="state-title">Loading positions…</p>
                 <p class="state-sub">Fetching live data from Google Sheets</p>
             </div>
 
             <!-- Error -->
             <div id="errorState">
-                <div class="state-icon">⚠️</div>
+                <div class="state-icon-card error-card">!</div>
                 <p class="state-title">Unable to load data</p>
                 <p class="state-sub" id="errorMessage">Please check your configuration and try again.</p>
                 <button class="retry-btn" onclick="loadData()">Try again</button>
@@ -76,7 +93,7 @@
 
             <!-- Empty -->
             <div id="emptyState">
-                <div class="state-icon">📭</div>
+                <div class="state-icon-card empty-card">∅</div>
                 <p class="state-title">No open positions</p>
                 <p class="state-sub" id="emptyMessage">There are currently no active trades in the sheet.</p>
             </div>
@@ -84,16 +101,20 @@
             <!-- Table -->
             <div class="table-wrapper">
                 <div class="table-header-bar">
-                    <span class="table-title">Open Positions</span>
+                    <div>
+                        <span class="table-title">Open Positions</span>
+                        <p class="table-caption">Active trades pulled from your Google Sheet</p>
+                    </div>
                     <span class="positions-count" id="positionsCount">0 rows</span>
                 </div>
-                <div style="overflow-x:auto">
+                <div class="table-scroll">
                     <table class="positions-table">
                         <thead>
                             <tr>
                                 <th>Strategy</th>
                                 <th>Symbol</th>
                                 <th>Type</th>
+                                <th>Side</th>
                                 <th>Strike</th>
                                 <th>Expiry</th>
                                 <th>Qty</th>
@@ -113,7 +134,7 @@
     <!-- FOOTER -->
     <footer class="footer">
         <div class="inner footer-inner">
-            <span class="footer-text">Derivatives Tracker · Real-time dashboard</span>
+            <span class="footer-text">FO Tracker · Real-time derivatives dashboard</span>
         </div>
     </footer>
 

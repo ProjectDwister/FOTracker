@@ -126,18 +126,21 @@ function renderTable() {
         const pnlNum   = parseFloat(p.pnl) || 0;
         const pnlClass = pnlNum >= 0 ? 'positive' : 'negative';
         const pnlSign  = pnlNum >= 0 ? '+' : '−';
-        const dirClass = p.direction.toLowerCase() === 'long' ? 'long' : 'short';
+        const dirRaw   = (p.direction || '').trim();
+        const dirClass = dirRaw.toLowerCase() === 'long' ? 'long' : 'short';
+        const dirLabel = dirRaw || (dirClass === 'long' ? 'Long' : 'Short');
 
-        return `<tr style="animation-delay:${i * 0.04}s">
-            <td><span class="strategy-name">${esc(p.strategy)}</span></td>
-            <td class="symbol-cell ${dirClass}">${esc(p.symbol)}</td>
-            <td><span class="type-badge type-${esc(p.type)}">${esc(p.type)}</span></td>
-            <td class="mono-cell">${fmtStrike(p.strike)}</td>
-            <td class="expiry-cell">${fmtExpiry(p.expiry)}</td>
-            <td class="qty-cell">${fmtQty(p.qty)}</td>
-            <td class="mono-cell">${fmtPrice(p.entryPrice)}</td>
-            <td class="mono-cell ltp">${fmtPrice(p.ltp)}</td>
-            <td>
+        return `<tr class="row-${dirClass}" style="animation-delay:${i * 0.04}s">
+            <td data-label="Strategy"><span class="strategy-name">${esc(p.strategy || '—')}</span></td>
+            <td data-label="Symbol" class="symbol-cell ${dirClass}">${esc(p.symbol || '—')}</td>
+            <td data-label="Type"><span class="type-badge type-${esc(p.type)}">${esc(p.type || '—')}</span></td>
+            <td data-label="Side"><span class="direction-badge ${dirClass}">${esc(dirLabel)}</span></td>
+            <td data-label="Strike" class="mono-cell">${fmtStrike(p.strike)}</td>
+            <td data-label="Expiry" class="expiry-cell">${fmtExpiry(p.expiry)}</td>
+            <td data-label="Qty" class="qty-cell">${fmtQty(p.qty)}</td>
+            <td data-label="Entry" class="mono-cell">${fmtPrice(p.entryPrice)}</td>
+            <td data-label="LTP" class="mono-cell ltp">${fmtPrice(p.ltp)}</td>
+            <td data-label="P&L">
                 <span class="pnl-badge ${pnlClass}">
                     <span class="pnl-sign">${pnlSign}</span>₹${fmtPnLAbs(pnlNum)}
                 </span>
@@ -171,6 +174,9 @@ function updateStats() {
 function updateLastUpdated() {
     const t = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
     document.getElementById('lastUpdated').textContent = `Updated ${t}`;
+
+    const topLastUpdated = document.getElementById('topLastUpdated');
+    if (topLastUpdated) topLastUpdated.textContent = t;
 }
 
 // ============================================================
