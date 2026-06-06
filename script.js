@@ -136,6 +136,7 @@ function processData(rows) {
     
     console.log(`📊 Loaded ${allPositions.length} open positions with quantity`);
 }
+
 function renderTable() {
     const tbody = document.getElementById('tableBody');
     
