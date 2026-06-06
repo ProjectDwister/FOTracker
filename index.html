@@ -3,87 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Derivatives Tracker - Live Dashboard</title>
+    <title>Derivatives Tracker</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-content">
-                <h1 class="title">
-                    <span class="title-icon">📊</span>
-                    Derivatives Tracker
-                </h1>
-                <div class="header-stats">
-                    <div class="stat-card">
-                        <span class="stat-label">Open Positions</span>
-                        <span class="stat-value" id="totalPositions">-</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-label">Total P&L</span>
-                        <span class="stat-value pnl" id="totalPnL">₹0.00</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-label">Last Updated</span>
-                        <span class="stat-value small" id="lastUpdated">-</span>
-                    </div>
+<div class="page">
+
+    <!-- ── TOP NAV ── -->
+    <nav class="topbar">
+        <div class="inner topbar-inner">
+            <a href="#" class="logo">
+                <span class="logo-dot"></span>
+                <span>Derivatives Tracker</span>
+            </a>
+            <div class="topbar-right">
+                <div class="live-badge">
+                    <span class="live-dot"></span>
+                    <span class="label">Live</span>
+                </div>
+                <div class="countdown-pill">
+                    <span class="label">Refresh in</span>
+                    <span id="countdown">5:00</span>
                 </div>
                 <button class="refresh-btn" onclick="loadData()">
-                    <span class="refresh-icon">🔄</span>
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1.5 8A6.5 6.5 0 1 0 8 1.5a6.5 6.5 0 0 0-5.2 2.6"/>
+                        <polyline points="1.5 1.5 1.5 4.5 4.5 4.5"/>
+                    </svg>
                     Refresh
                 </button>
             </div>
-        </header>
-
-        <!-- Table -->
-        <div class="table-container">
-            <table class="positions-table">
-                <thead>
-                    <tr>
-                        <th>Strategy</th>
-                        <th>Symbol</th>
-                        <th>Type</th>
-                        <th>Strike</th>
-                        <th>Expiry</th>
-                        <th>Qty</th>
-                        <th>Entry Price</th>
-                        <th>LTP</th>
-                        <th>P&L</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                    <!-- Dynamic content -->
-                </tbody>
-            </table>
         </div>
+    </nav>
 
-        <!-- Loading State -->
-        <div id="loadingState" class="loading" style="display: none;">
-            <div class="spinner"></div>
-            <p>Loading positions...</p>
+    <!-- ── STATS ── -->
+    <section class="stats-section">
+        <div class="inner">
+            <p class="page-title">Portfolio Overview</p>
+            <div class="stats-grid">
+                <div class="stat-tile">
+                    <span class="stat-label">Open Positions</span>
+                    <span class="stat-value" id="totalPositions">—</span>
+                    <span class="stat-sub">Active trades</span>
+                </div>
+                <div class="stat-tile">
+                    <span class="stat-label">Total P&amp;L</span>
+                    <span class="stat-value" id="totalPnL">—</span>
+                    <span class="stat-sub">Unrealised</span>
+                </div>
+                <div class="stat-tile">
+                    <span class="stat-label">Winners / Losers</span>
+                    <span class="stat-value">
+                        <span style="color:var(--green)" id="winnersCount">—</span>
+                        <span style="color:var(--text-3);font-size:20px;font-weight:400"> / </span>
+                        <span style="color:var(--red)" id="losersCount">—</span>
+                    </span>
+                    <span class="stat-sub">Profit vs loss legs</span>
+                </div>
+                <div class="stat-tile">
+                    <span class="stat-label">Last Updated</span>
+                    <span class="stat-value" style="font-size:22px;font-weight:600;letter-spacing:-0.5px" id="lastUpdated">—</span>
+                    <span class="stat-sub">Auto-refresh every 5 min</span>
+                </div>
+            </div>
         </div>
+    </section>
 
-        <!-- Error State -->
-        <div id="errorState" class="error" style="display: none;">
-            <div class="error-icon">⚠️</div>
-            <h3>Unable to Load Data</h3>
-            <p id="errorMessage">Please check your configuration and try again.</p>
-            <button class="retry-btn" onclick="loadData()">Retry</button>
+    <!-- ── TABLE ── -->
+    <section class="table-section">
+        <div class="inner">
+
+            <!-- Loading -->
+            <div id="loadingState" style="display:flex">
+                <div class="loader-ring"></div>
+                <p class="state-title">Loading positions…</p>
+                <p class="state-sub">Fetching live data from Google Sheets</p>
+            </div>
+
+            <!-- Error -->
+            <div id="errorState">
+                <div class="state-icon">⚠️</div>
+                <p class="state-title">Unable to load data</p>
+                <p class="state-sub" id="errorMessage">Please check your configuration and try again.</p>
+                <button class="retry-btn" onclick="loadData()">Try again</button>
+            </div>
+
+            <!-- Empty -->
+            <div id="emptyState">
+                <div class="state-icon">📭</div>
+                <p class="state-title">No open positions</p>
+                <p class="state-sub">There are currently no active trades in the sheet.</p>
+            </div>
+
+            <!-- Table -->
+            <div class="table-wrapper">
+                <div class="table-header-bar">
+                    <span class="table-title">Open Positions</span>
+                    <span class="positions-count" id="positionsCount">0 rows</span>
+                </div>
+                <div style="overflow-x:auto">
+                    <table class="positions-table">
+                        <thead>
+                            <tr>
+                                <th>Strategy</th>
+                                <th>Symbol</th>
+                                <th>Type</th>
+                                <th>Strike</th>
+                                <th>Expiry</th>
+                                <th>Qty</th>
+                                <th>Entry</th>
+                                <th>LTP</th>
+                                <th>P&amp;L</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
+    </section>
 
-        <!-- Empty State -->
-        <div id="emptyState" class="empty-state" style="display: none;">
-            <div class="empty-icon">📭</div>
-            <h3>No Open Positions</h3>
-            <p>There are currently no open positions.</p>
-        </div>
-    </div>
-
+    <!-- ── FOOTER ── -->
     <footer class="footer">
-        <p>🚀 Real-time Derivatives Dashboard | Auto-refreshes every 5 minutes</p>
+        <div class="inner footer-inner">
+            <span class="footer-text">Derivatives Tracker · Real-time dashboard</span>
+            <span class="footer-badge">
+                <span class="live-dot" style="width:5px;height:5px"></span>
+                Auto-refresh every 5 minutes
+            </span>
+        </div>
     </footer>
 
-    <script src="script.js"></script>
+</div>
+<script src="script.js"></script>
 </body>
 </html>
