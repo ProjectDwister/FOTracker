@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Sheet Debugger</title>
+<style>
+  body { font-family: monospace; background: #0d0d0d; color: #e0e0e0; padding: 24px; }
+  h2 { color: #3d7fff; }
+  pre { background: #1a1a1a; padding: 16px; border-radius: 8px; overflow-x: auto; font-size: 12px; white-space: pre-wrap; }
+  table { border-collapse: collapse; width: 100%; font-size: 11px; margin-top: 16px; }
+  th { background: #222; color: #888; padding: 8px; text-align: left; border: 1px solid #333; }
+  td { padding: 6px 8px; border: 1px solid #222; }
+  tr:nth-child(even) td { background: #111; }
+  .highlight { background: #1a2a1a !important; color: #00d68f; }
+  .col-label { color: #888; font-size: 10px; }
+  button { background: #3d7fff; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; margin: 8px 4px 0 0; }
+</style>
+</head>
+<body>
+<h2>🔍 Sheet Data Debugger</h2>
+<p style="color:#888">Fetching raw data from your Google Sheet...</p>
+<button onclick="fetchData()">Re-fetch</button>
+<button onclick="fetchData(true)">Fetch rows 1-5 (with headers)</button>
+
+<div id="output"></div>
+
+<script>
+const SHEET_ID = '1Su_cw-0RyzHTFRP_aqolWtT956cmPHpJbojt2YbwZzc';
+const API_KEY  = 'AIzaSyA9RuEF0WuE7W8K4vkd_rfKI2-6MSLpIc0';
+
+async function fetchData(withHeaders = false) {
+  const range = withHeaders ? 'Sheet1!A1:N10' : 'Sheet1!A2:N10';
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
+  const out = document.getElementById('output');
+  out.innerHTML = '<p style="color:#888">Fetching...</p>';
+  try {
+    const resp = await fetch(url);
+    const data = await resp.json();
+    if (data.error) {
+      out.innerHTML = `<pre style="color:#ff4d6d">API Error: ${JSON.stringify(data.error, null, 2)}</pre>`;
+      return;
+    }
+    const rows = data.values || [];
+    out.innerHTML = `<p style="color:#00d68f">✅ Got ${rows.length} rows. Range: ${data.range}</p>`;
+
+    // Column index labels
+    const colLetters = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N'];
+    const colNames   = ['STRATEGY','EXCHANGE','SYMBOL','TYPE','EXPIRY/STRIKE?','STRIKE/EXPIRY?','DIRECTION','QTY','ENTRY_DATE','ENTRY_PRICE','EXIT_DATE','LTP','STATUS','PNL'];
+
+    let html = '<table><thead><tr>';
+    html += '<th>#</th>';
+    colLetters.forEach((l,i) => { html += `<th>${l}<br><span class="col-label">${colNames[i]||''}</span></th>`; });
+    html += '</tr></thead><tbody>';
+
+    rows.forEach((row, ri) => {
+      html += '<tr>';
+      html += `<td style="color:#666">${ri + (withHeaders ? 1 : 2)}</td>`;
+      colLetters.forEach((l, ci) => {
+        const val = row[ci] ?? '';
+        const isStatus = ci === 12;
+        const isOpen = isStatus && val.toString().trim().toLowerCase() === 'open';
+        html += `<td class="${isStatus ? (isOpen ? 'highlight' : '') : ''}">${escapeHtml(String(val))}</td>`;
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+
+    // Show status column analysis
+    const statuses = rows.map(r => `"${r[12] ?? '(empty)'}"`)
+    html += `<p style="margin-top:16px;color:#888">Status column (M) values in these rows: ${[...new Set(statuses)].join(', ')}</p>`;
+    html += `<pre style="margin-top:8px;color:#9ea8c4">Raw JSON (first 2 rows):\n${JSON.stringify(rows.slice(0,2), null, 2)}</pre>`;
+
+    out.innerHTML = html;
+  } catch(e) {
+    out.innerHTML = `<pre style="color:#ff4d6d">Error: ${e.message}</pre>`;
+  }
+}
+
+function escapeHtml(t) {
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+fetchData(true);
+</script>
+</body>
+</html>
