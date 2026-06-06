@@ -64,6 +64,7 @@ async function loadData() {
         processData(data.values);
 
         renderTable();
+        renderCards();
         updateStats();
         updateLastUpdated();
 
@@ -125,33 +126,63 @@ function renderTable() {
     tbody.innerHTML = allPositions.map((p, i) => {
         const pnlNum   = parseFloat(p.pnl) || 0;
         const pnlClass = pnlNum >= 0 ? 'positive' : 'negative';
-        const pnlSign  = pnlNum >= 0 ? '+' : '−';
-        const dirRaw   = (p.direction || '').trim();
-        const dirClass = dirRaw.toLowerCase() === 'long' ? 'long' : 'short';
-        const dirLabel = dirRaw || (dirClass === 'long' ? 'Long' : 'Short');
+        const pnlSign  = pnlNum < 0 ? '−' : '';
+        const dirClass = p.direction.toLowerCase() === 'long' ? 'long' : 'short';
 
-        return `<tr class="row-${dirClass}" style="animation-delay:${i * 0.04}s">
-            <td data-label="Strategy"><span class="strategy-name">${esc(p.strategy || '—')}</span></td>
-            <td data-label="Symbol" class="symbol-cell ${dirClass}">${esc(p.symbol || '—')}</td>
-            <td data-label="Type"><span class="type-badge type-${esc(p.type)}">${esc(p.type || '—')}</span></td>
-            <td data-label="Side"><span class="direction-badge ${dirClass}">${esc(dirLabel)}</span></td>
-            <td data-label="Strike" class="mono-cell">${fmtStrike(p.strike)}</td>
-            <td data-label="Expiry" class="expiry-cell">${fmtExpiry(p.expiry)}</td>
-            <td data-label="Qty" class="qty-cell">${fmtQty(p.qty)}</td>
-            <td data-label="Entry" class="mono-cell">${fmtPrice(p.entryPrice)}</td>
-            <td data-label="LTP" class="mono-cell ltp">${fmtPrice(p.ltp)}</td>
-            <td data-label="P&L">
-                <span class="pnl-badge ${pnlClass}">
-                    <span class="pnl-sign">${pnlSign}</span>₹${fmtPnLAbs(pnlNum)}
-                </span>
+        return `<tr style="animation-delay:${i * 0.04}s">
+            <td><span class="strategy-name">${esc(p.strategy)}</span></td>
+            <td class="symbol-cell ${dirClass}">${esc(p.symbol)}</td>
+            <td><span class="type-badge type-${esc(p.type)}">${esc(p.type)}</span></td>
+            <td class="mono-cell">${fmtStrike(p.strike)}</td>
+            <td class="expiry-cell">${fmtExpiry(p.expiry)}</td>
+            <td class="qty-cell">${fmtQty(p.qty)}</td>
+            <td class="mono-cell">${fmtPrice(p.entryPrice)}</td>
+            <td class="mono-cell ltp">${fmtPrice(p.ltp)}</td>
+            <td>
+                <span class="pnl-badge ${pnlClass}">${pnlSign}₹${fmtPnLAbs(pnlNum)}</span>
             </td>
         </tr>`;
     }).join('');
 }
 
 // ============================================================
-// STATS
+// RENDER CARDS (mobile portrait)
 // ============================================================
+
+function renderCards() {
+    const list = document.getElementById('cardList');
+    if (!list) return;
+
+    list.innerHTML = allPositions.map((p, i) => {
+        const pnlNum   = parseFloat(p.pnl) || 0;
+        const pnlClass = pnlNum >= 0 ? 'positive' : 'negative';
+        const pnlSign  = pnlNum < 0 ? '−' : '';
+        const dirClass = p.direction.toLowerCase() === 'long' ? 'long' : 'short';
+
+        return `<div class="position-card" style="animation-delay:${i * 0.04}s">
+            <div class="card-top-left">
+                <span class="card-symbol ${dirClass}">${esc(p.symbol)}</span>
+                <span class="type-badge type-${esc(p.type)}">${esc(p.type)}</span>
+                <span class="card-strategy">${esc(p.strategy)}</span>
+            </div>
+            <div class="card-top-right">
+                <span class="pnl-badge ${pnlClass}">${pnlSign}₹${fmtPnLAbs(pnlNum)}</span>
+            </div>
+            <div class="card-bottom-left">
+                <span class="card-meta">Strike ${fmtStrike(p.strike)}</span>
+                <span class="card-meta">Exp ${fmtExpiry(p.expiry)}</span>
+                <span class="card-meta">Qty ${fmtQty(p.qty)}</span>
+                <span class="card-entry">Entry ₹${fmtPrice(p.entryPrice)}</span>
+            </div>
+            <div class="card-bottom-right">
+                <span class="card-ltp">₹${fmtPrice(p.ltp)}</span>
+                <div class="card-meta" style="margin-top:2px">LTP</div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+
 
 function updateStats() {
     const sumPnL = arr => arr.reduce((s, p) => s + (parseFloat(p.pnl) || 0), 0);
@@ -161,7 +192,7 @@ function updateStats() {
     const totalPnL  = openPnL + closedPnL;
 
     const fmt = (num) => {
-        const sign = num >= 0 ? '+' : '−';
+        const sign = num < 0 ? '−' : '';
         const cls  = num >= 0 ? 'positive' : 'negative';
         return `<span class="${cls}">${sign}₹${fmtPnLAbs(num)}</span>`;
     };
@@ -174,9 +205,6 @@ function updateStats() {
 function updateLastUpdated() {
     const t = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
     document.getElementById('lastUpdated').textContent = `Updated ${t}`;
-
-    const topLastUpdated = document.getElementById('topLastUpdated');
-    if (topLastUpdated) topLastUpdated.textContent = t;
 }
 
 // ============================================================
