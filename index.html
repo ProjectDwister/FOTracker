@@ -37,28 +37,19 @@
             <p class="page-title">Portfolio Overview</p>
             <div class="stats-grid">
                 <div class="stat-tile">
-                    <span class="stat-label">Open Positions</span>
-                    <span class="stat-value" id="totalPositions">—</span>
-                    <span class="stat-sub">Active trades</span>
-                </div>
-                <div class="stat-tile">
-                    <span class="stat-label">Total P&amp;L</span>
-                    <span class="stat-value" id="totalPnL">—</span>
+                    <span class="stat-label">Open P&amp;L</span>
+                    <span class="stat-value" id="openPnL">—</span>
                     <span class="stat-sub">Unrealised</span>
                 </div>
                 <div class="stat-tile">
-                    <span class="stat-label">Winners / Losers</span>
-                    <span class="stat-value">
-                        <span style="color:var(--green)" id="winnersCount">—</span>
-                        <span style="color:var(--text-3);font-size:20px;font-weight:400"> / </span>
-                        <span style="color:var(--red)" id="losersCount">—</span>
-                    </span>
-                    <span class="stat-sub">Profit vs loss legs</span>
+                    <span class="stat-label">Closed P&amp;L</span>
+                    <span class="stat-value" id="closedPnL">—</span>
+                    <span class="stat-sub">Realised</span>
                 </div>
-                <div class="stat-tile">
-                    <span class="stat-label">Last Updated</span>
-                    <span class="stat-value" style="font-size:22px;font-weight:600;letter-spacing:-0.5px" id="lastUpdated">—</span>
-                    <span class="stat-sub">Auto-refresh every 5 min</span>
+                <div class="stat-tile stat-tile--total">
+                    <span class="stat-label">Total P&amp;L</span>
+                    <span class="stat-value" id="totalPnL">—</span>
+                    <span class="stat-sub" id="lastUpdated">—</span>
                 </div>
             </div>
         </div>
@@ -123,10 +114,6 @@
     <footer class="footer">
         <div class="inner footer-inner">
             <span class="footer-text">Derivatives Tracker · Real-time dashboard</span>
-            <span class="footer-badge">
-                <span class="live-dot" style="width:5px;height:5px"></span>
-                Auto-refresh every 5 minutes
-            </span>
         </div>
     </footer>
 

@@ -5,7 +5,7 @@
 const CONFIG = {
     SHEET_ID: '1Su_cw-0RyzHTFRP_aqolWtT956cmPHpJbojt2YbwZzc',
     API_KEY: 'AIzaSyA9RuEF0WuE7W8K4vkd_rfKI2-6MSLpIc0',
-    RANGE: 'Sheet1!A2:N',
+    RANGE: 'Sheet1!A2:N',         // All rows — open and closed
     REFRESH_INTERVAL: 5 * 60 * 1000,
 };
 
@@ -31,7 +31,8 @@ const COLUMNS = {
 // GLOBAL STATE
 // ============================================================
 
-let allPositions = [];
+let allPositions = [];    // open only (no exit date)
+let closedPositions = []; // closed only (has exit date)
 let countdown = CONFIG.REFRESH_INTERVAL / 1000;
 
 // ============================================================
@@ -62,15 +63,15 @@ async function loadData() {
 
         processData(data.values);
 
-        if (allPositions.length === 0) {
-            showEmpty('No open positions found. All rows have an Exit Date filled in.');
-            return;
-        }
-
         renderTable();
         updateStats();
         updateLastUpdated();
-        hideAllStates();
+
+        if (allPositions.length === 0) {
+            showEmpty('No open positions. All trades have been closed.');
+        } else {
+            hideAllStates();
+        }
 
     } catch (error) {
         console.error('Load error:', error);
@@ -83,41 +84,32 @@ async function loadData() {
 // ============================================================
 
 function processData(rows) {
-    allPositions = rows
-        .filter(row => {
-            if (!row || row.length < 3) return false;
+    const validRows = rows.filter(row => {
+        if (!row || row.length < 3) return false;
+        return (row[COLUMNS.SYMBOL] || '').toString().trim() !== '';
+    });
 
-            // Must have a symbol
-            const symbol = (row[COLUMNS.SYMBOL] || '').toString().trim();
-            if (!symbol) return false;
+    const mapRow = row => {
+        let pnlRaw = (row[COLUMNS.PNL] || '0').toString().replace(/[₹$,\s]/g, '').trim();
+        if (!pnlRaw || pnlRaw === '-') pnlRaw = '0';
+        return {
+            strategy:   (row[COLUMNS.STRATEGY]    || '').trim(),
+            exchange:   (row[COLUMNS.EXCHANGE]    || '').trim(),
+            symbol:     (row[COLUMNS.SYMBOL]      || '').trim(),
+            type:       (row[COLUMNS.TYPE]        || '').trim(),
+            expiry:     (row[COLUMNS.EXPIRY]      || '').trim(),
+            strike:     (row[COLUMNS.STRIKE]      || '').trim(),
+            direction:  (row[COLUMNS.DIRECTION]   || '').trim(),
+            qty:        (row[COLUMNS.QTY]         || '0').trim(),
+            entryPrice: (row[COLUMNS.ENTRY_PRICE] || '0').trim(),
+            ltp:        (row[COLUMNS.LTP]         || '0').trim(),
+            pnl:        pnlRaw
+        };
+    };
 
-            // A position is "open" when Exit Date (column K) is blank.
-            // This mirrors the sheet formula: if EXIT_DATE is filled → Closed.
-            // We don't rely on the formula-derived Status column (M) at all.
-            const exitDate = (row[COLUMNS.EXIT_DATE] || '').toString().trim();
-            if (exitDate) return false; // Has an exit date → closed
-
-            return true;
-        })
-        .map(row => {
-            // Clean P&L: strip currency symbols, commas, whitespace
-            let pnlRaw = (row[COLUMNS.PNL] || '0').toString().replace(/[₹$,\s]/g, '').trim();
-            if (!pnlRaw || pnlRaw === '-') pnlRaw = '0';
-
-            return {
-                strategy:   (row[COLUMNS.STRATEGY]    || '').trim(),
-                exchange:   (row[COLUMNS.EXCHANGE]    || '').trim(),
-                symbol:     (row[COLUMNS.SYMBOL]      || '').trim(),
-                type:       (row[COLUMNS.TYPE]        || '').trim(),
-                expiry:     (row[COLUMNS.EXPIRY]      || '').trim(),
-                strike:     (row[COLUMNS.STRIKE]      || '').trim(),
-                direction:  (row[COLUMNS.DIRECTION]   || '').trim(),
-                qty:        (row[COLUMNS.QTY]         || '0').trim(),
-                entryPrice: (row[COLUMNS.ENTRY_PRICE] || '0').trim(),
-                ltp:        (row[COLUMNS.LTP]         || '0').trim(),
-                pnl:        pnlRaw
-            };
-        });
+    // Split by exit date: blank = open, filled = closed
+    allPositions    = validRows.filter(row => !(row[COLUMNS.EXIT_DATE] || '').toString().trim()).map(mapRow);
+    closedPositions = validRows.filter(row =>  (row[COLUMNS.EXIT_DATE] || '').toString().trim()).map(mapRow);
 }
 
 // ============================================================
@@ -159,22 +151,26 @@ function renderTable() {
 // ============================================================
 
 function updateStats() {
-    const totalPnL = allPositions.reduce((s, p) => s + (parseFloat(p.pnl) || 0), 0);
-    const winners  = allPositions.filter(p => parseFloat(p.pnl) > 0).length;
-    const losers   = allPositions.filter(p => parseFloat(p.pnl) < 0).length;
-    const sign     = totalPnL >= 0 ? '+' : '−';
-    const cls      = totalPnL >= 0 ? 'positive' : 'negative';
+    const sumPnL = arr => arr.reduce((s, p) => s + (parseFloat(p.pnl) || 0), 0);
 
-    document.getElementById('totalPositions').textContent = allPositions.length;
-    document.getElementById('winnersCount').textContent   = winners;
-    document.getElementById('losersCount').textContent    = losers;
-    document.getElementById('totalPnL').innerHTML =
-        `<span class="${cls}">${sign}₹${fmtPnLAbs(totalPnL)}</span>`;
+    const openPnL   = sumPnL(allPositions);
+    const closedPnL = sumPnL(closedPositions);
+    const totalPnL  = openPnL + closedPnL;
+
+    const fmt = (num) => {
+        const sign = num >= 0 ? '+' : '−';
+        const cls  = num >= 0 ? 'positive' : 'negative';
+        return `<span class="${cls}">${sign}₹${fmtPnLAbs(num)}</span>`;
+    };
+
+    document.getElementById('openPnL').innerHTML   = fmt(openPnL);
+    document.getElementById('closedPnL').innerHTML = fmt(closedPnL);
+    document.getElementById('totalPnL').innerHTML  = fmt(totalPnL);
 }
 
 function updateLastUpdated() {
-    document.getElementById('lastUpdated').textContent =
-        new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+    const t = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+    document.getElementById('lastUpdated').textContent = `Updated ${t}`;
 }
 
 // ============================================================
