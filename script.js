@@ -92,7 +92,7 @@ async function loadData() {
 }
 
 function processData(rows) {
-    // Filter only "Open" positions with valid quantity and exclude empty rows
+    // Filter only complete "Open" positions with all required fields
     allPositions = rows
         .filter(row => {
             // Check if row has minimum required data
@@ -104,11 +104,19 @@ function processData(rows) {
             
             // Check if Quantity exists and is not zero
             const qty = row[COLUMNS.QTY];
-            if (!qty || qty.toString().trim() === '' || qty.toString().trim() === '0') return false;
+            if (!qty || qty.toString().trim() === '' || parseFloat(qty.toString().replace(/[^0-9.-]/g, '')) === 0) return false;
             
-            // Check if Symbol exists (basic data validation)
+            // Check if Symbol exists
             const symbol = row[COLUMNS.SYMBOL];
             if (!symbol || symbol.toString().trim() === '') return false;
+            
+            // Check if Strategy exists
+            const strategy = row[COLUMNS.STRATEGY];
+            if (!strategy || strategy.toString().trim() === '') return false;
+            
+            // Check if Type exists
+            const type = row[COLUMNS.TYPE];
+            if (!type || type.toString().trim() === '') return false;
             
             return true;
         })
@@ -134,7 +142,7 @@ function processData(rows) {
             };
         });
     
-    console.log(`📊 Loaded ${allPositions.length} open positions with quantity`);
+    console.log(`📊 Loaded ${allPositions.length} open positions with complete data`);
 }
 
 function renderTable() {
