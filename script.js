@@ -5,7 +5,7 @@
 const CONFIG = {
     SHEET_ID: '1Su_cw-0RyzHTFRP_aqolWtT956cmPHpJbojt2YbwZzc',
     API_KEY: 'AIzaSyA9RuEF0WuE7W8K4vkd_rfKI2-6MSLpIc0',
-    RANGE: 'Sheet1!A2:N',         // All rows — open and closed
+    RANGE: 'Sheet1!A2:N',
     REFRESH_INTERVAL: 5 * 60 * 1000,
 };
 
@@ -24,17 +24,17 @@ const COLUMNS = {
     EXIT_DATE:   10,  // K
     LTP:         11,  // L
     STATUS:      12,  // M
-    PNL:         13   // N
+    PNL:         13,  // N
 };
 
 // ============================================================
 // GLOBAL STATE
 // ============================================================
 
-let allPositions = [];    // open only (no exit date)
-let closedPositions = []; // closed only (has exit date)
-let todayPnL = null;      // extracted from labelled summary row
-let countdown = CONFIG.REFRESH_INTERVAL / 1000;
+let allPositions    = [];   // open only (no exit date)
+let closedPositions = [];   // closed only (has exit date)
+let todayPnL        = null; // extracted from labelled summary row
+let countdown       = CONFIG.REFRESH_INTERVAL / 1000;
 
 // ============================================================
 // MAIN LOAD FUNCTION
@@ -63,7 +63,6 @@ async function loadData() {
         }
 
         processData(data.values);
-
         renderTable();
         renderCards();
         updateStats();
@@ -86,8 +85,7 @@ async function loadData() {
 // ============================================================
 
 function processData(rows) {
-    // Scan every row for the Today's P&L summary label in column M (index 12)
-    // The label text must match exactly (trimmed, case-insensitive)
+    // Find Today's P&L by scanning for its label in column M
     todayPnL = null;
     const TODAY_LABEL = "today's p&l  (vs yesterday's eod)";
     for (const row of rows) {
@@ -109,7 +107,6 @@ function processData(rows) {
         if (!pnlRaw || pnlRaw === '-') pnlRaw = '0';
         return {
             strategy:   (row[COLUMNS.STRATEGY]    || '').trim(),
-            exchange:   (row[COLUMNS.EXCHANGE]    || '').trim(),
             symbol:     (row[COLUMNS.SYMBOL]      || '').trim(),
             type:       (row[COLUMNS.TYPE]        || '').trim(),
             expiry:     (row[COLUMNS.EXPIRY]      || '').trim(),
@@ -118,47 +115,40 @@ function processData(rows) {
             qty:        (row[COLUMNS.QTY]         || '0').trim(),
             entryPrice: (row[COLUMNS.ENTRY_PRICE] || '0').trim(),
             ltp:        (row[COLUMNS.LTP]         || '0').trim(),
-            pnl:        pnlRaw
+            pnl:        pnlRaw,
         };
     };
 
-    // Split by exit date: blank = open, filled = closed
     allPositions    = validRows.filter(row => !(row[COLUMNS.EXIT_DATE] || '').toString().trim()).map(mapRow);
     closedPositions = validRows.filter(row =>  (row[COLUMNS.EXIT_DATE] || '').toString().trim()).map(mapRow);
 }
 
 // ============================================================
-// RENDER TABLE
+// RENDER TABLE  (Strategy | Derivative | Entry | LTP | P&L)
 // ============================================================
 
 function renderTable() {
     const tbody = document.getElementById('tableBody');
     const count = allPositions.length;
-
     document.getElementById('positionsCount').textContent = `${count} row${count !== 1 ? 's' : ''}`;
 
     tbody.innerHTML = allPositions.map((p, i) => {
         const pnlNum   = parseFloat(p.pnl) || 0;
         const pnlClass = pnlNum >= 0 ? 'positive' : 'negative';
         const pnlSign  = pnlNum < 0 ? '−' : '';
-        const dirClass = p.direction.toLowerCase() === 'long' ? 'long' : 'short';
 
         return `<tr style="animation-delay:${i * 0.04}s">
             <td><span class="strategy-name">${esc(p.strategy)}</span></td>
             <td>${fmtDerivative(p)}</td>
-            <td class="expiry-cell">${fmtExpiry(p.expiry)}</td>
-            <td class="qty-cell text-right">${fmtQty(p.qty)}</td>
             <td class="mono-cell text-right">${fmtPrice(p.entryPrice)}</td>
             <td class="mono-cell ltp text-right">${fmtPrice(p.ltp)}</td>
-            <td>
-                <span class="pnl-badge ${pnlClass}">${pnlSign}₹${fmtPnLAbs(pnlNum)}</span>
-            </td>
+            <td><span class="pnl-badge ${pnlClass}">${pnlSign}₹${fmtPnLAbs(pnlNum)}</span></td>
         </tr>`;
     }).join('');
 }
 
 // ============================================================
-// RENDER CARDS (mobile portrait)
+// RENDER CARDS  (mobile portrait)
 // ============================================================
 
 function renderCards() {
@@ -169,7 +159,6 @@ function renderCards() {
         const pnlNum   = parseFloat(p.pnl) || 0;
         const pnlClass = pnlNum >= 0 ? 'positive' : 'negative';
         const pnlSign  = pnlNum < 0 ? '−' : '';
-        const dirClass = p.direction.toLowerCase() === 'long' ? 'long' : 'short';
 
         return `<div class="position-card" style="animation-delay:${i * 0.04}s">
             <div class="card-top-left">
@@ -180,8 +169,6 @@ function renderCards() {
                 <span class="pnl-badge ${pnlClass}">${pnlSign}₹${fmtPnLAbs(pnlNum)}</span>
             </div>
             <div class="card-bottom-left">
-                <span class="card-meta">Exp ${fmtExpiry(p.expiry)}</span>
-                <span class="card-meta">Qty ${fmtQty(p.qty)}</span>
                 <span class="card-entry">Entry ₹${fmtPrice(p.entryPrice)}</span>
             </div>
             <div class="card-bottom-right">
@@ -192,16 +179,17 @@ function renderCards() {
     }).join('');
 }
 
-
+// ============================================================
+// STATS
+// ============================================================
 
 function updateStats() {
     const sumPnL = arr => arr.reduce((s, p) => s + (parseFloat(p.pnl) || 0), 0);
-
     const openPnL   = sumPnL(allPositions);
     const closedPnL = sumPnL(closedPositions);
     const totalPnL  = openPnL + closedPnL;
 
-    const fmt = (num) => {
+    const fmt = num => {
         const sign = num < 0 ? '−' : '';
         const cls  = num >= 0 ? 'positive' : 'negative';
         return `<span class="${cls}">${sign}₹${fmtPnLAbs(num)}</span>`;
@@ -213,7 +201,9 @@ function updateStats() {
 
     const todayEl = document.getElementById('todayPnL');
     if (todayEl) {
-        todayEl.innerHTML = todayPnL !== null ? fmt(todayPnL) : '<span style="color:var(--text-3)">—</span>';
+        todayEl.innerHTML = todayPnL !== null
+            ? fmt(todayPnL)
+            : '<span style="color:var(--text-3)">—</span>';
     }
 }
 
@@ -247,11 +237,14 @@ function fmtQty(val) {
 }
 
 function fmtPnLAbs(num) {
-    return new Intl.NumberFormat('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(num));
+    return new Intl.NumberFormat('en-IN', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    }).format(Math.abs(num));
 }
 
 function fmtExpiry(dateStr) {
-    if (!dateStr) return '—';
+    if (!dateStr) return '';
     const d = new Date(dateStr);
     if (isNaN(d.getTime())) return dateStr;
     const dd = String(d.getDate()).padStart(2, '0');
@@ -259,17 +252,28 @@ function fmtExpiry(dateStr) {
     return `${dd}-${mm}`;
 }
 
+// Builds the combined Derivative cell:
+//   Symbol (coloured)  [CE/PE badge]  Strike  ·  Expiry  ·  Qty
+// FUT rows omit badge; all rows include expiry + qty as sub-line
 function fmtDerivative(p) {
-    const isFut  = p.type.toUpperCase() === 'FUT';
-    const type   = isFut ? '' : `<span class="type-badge type-${esc(p.type)}">${esc(p.type)}</span>`;
-    const strike = !isFut && p.strike ? ` <span class="deriv-strike">${fmtStrike(p.strike)}</span>` : '';
-    return `<span class="deriv-wrap">
-        <span class="symbol-cell ${p.direction.toLowerCase() === 'long' ? 'long' : 'short'}">${esc(p.symbol)}</span>
-        ${type}${strike}
-    </span>`;
+    const isFut      = p.type.toUpperCase() === 'FUT';
+    const dirClass   = p.direction.toLowerCase() === 'long' ? 'long' : 'short';
+    const typeBadge  = isFut ? '' : `<span class="type-badge type-${esc(p.type)}">${esc(p.type)}</span>`;
+    const strike     = (!isFut && p.strike) ? `<span class="deriv-strike">${fmtStrike(p.strike)}</span>` : '';
+    const expiry     = fmtExpiry(p.expiry);
+    const qty        = fmtQty(p.qty);
+
+    return `<div class="deriv-cell">
+        <div class="deriv-top">
+            <span class="symbol-cell ${dirClass}">${esc(p.symbol)}</span>
+            ${typeBadge}
+            ${strike}
+        </div>
+        <div class="deriv-sub">${expiry ? expiry + ' &nbsp;·&nbsp; ' : ''}Qty&nbsp;${qty}</div>
+    </div>`;
 }
 
-
+function esc(text) {
     const d = document.createElement('div');
     d.textContent = text;
     return d.innerHTML;
@@ -299,33 +303,33 @@ setInterval(() => { if (countdown > 0) countdown--; renderCountdown(); }, 1000);
 // ============================================================
 
 function showLoading() {
-    document.getElementById('loadingState').style.display = 'flex';
-    document.getElementById('errorState').style.display   = 'none';
-    document.getElementById('emptyState').style.display   = 'none';
+    document.getElementById('loadingState').style.display  = 'flex';
+    document.getElementById('errorState').style.display    = 'none';
+    document.getElementById('emptyState').style.display    = 'none';
     document.querySelector('.table-wrapper').style.display = 'none';
 }
 
 function showError(msg) {
-    document.getElementById('loadingState').style.display = 'none';
-    document.getElementById('errorState').style.display   = 'flex';
-    document.getElementById('emptyState').style.display   = 'none';
+    document.getElementById('loadingState').style.display  = 'none';
+    document.getElementById('errorState').style.display    = 'flex';
+    document.getElementById('emptyState').style.display    = 'none';
     document.querySelector('.table-wrapper').style.display = 'none';
-    document.getElementById('errorMessage').textContent   = msg;
+    document.getElementById('errorMessage').textContent    = msg;
 }
 
 function showEmpty(msg) {
-    document.getElementById('loadingState').style.display = 'none';
-    document.getElementById('errorState').style.display   = 'none';
-    document.getElementById('emptyState').style.display   = 'flex';
+    document.getElementById('loadingState').style.display  = 'none';
+    document.getElementById('errorState').style.display    = 'none';
+    document.getElementById('emptyState').style.display    = 'flex';
     document.querySelector('.table-wrapper').style.display = 'none';
     const sub = document.getElementById('emptyMessage');
     if (sub && msg) sub.textContent = msg;
 }
 
 function hideAllStates() {
-    document.getElementById('loadingState').style.display = 'none';
-    document.getElementById('errorState').style.display   = 'none';
-    document.getElementById('emptyState').style.display   = 'none';
+    document.getElementById('loadingState').style.display  = 'none';
+    document.getElementById('errorState').style.display    = 'none';
+    document.getElementById('emptyState').style.display    = 'none';
     document.querySelector('.table-wrapper').style.display = 'block';
 }
 
