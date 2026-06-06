@@ -214,7 +214,7 @@ body::before {
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 1px;
     background: var(--border);
     border: 1px solid var(--border);
@@ -233,11 +233,17 @@ body::before {
 
 .stat-tile:hover { background: var(--surface-2); }
 
-/* Total tile gets a subtle accent tint */
+/* Total tile — slightly elevated surface */
 .stat-tile--total {
     background: var(--surface-2);
 }
 .stat-tile--total:hover { background: var(--surface-3); }
+
+/* Today tile — same elevated surface */
+.stat-tile--today {
+    background: var(--surface-2);
+}
+.stat-tile--today:hover { background: var(--surface-3); }
 
 .stat-tile:first-child { border-radius: var(--r-xl) 0 0 var(--r-xl); }
 .stat-tile:last-child  { border-radius: 0 var(--r-xl) var(--r-xl) 0; }
@@ -626,15 +632,18 @@ body::before {
    ============================================================ */
 @media (max-width: 1024px) {
     .inner { padding: 0 20px; }
+    /* 4 → 2×2 on tablet and portrait mobile */
+    .stats-grid { grid-template-columns: repeat(2, 1fr); border-radius: var(--r-xl); }
+    .stat-tile:first-child { border-radius: var(--r-xl) 0 0 0; }
+    .stat-tile:nth-child(2){ border-radius: 0 var(--r-xl) 0 0; }
+    .stat-tile:nth-child(3){ border-radius: 0 0 0 var(--r-xl); }
+    .stat-tile:last-child  { border-radius: 0 0 var(--r-xl) 0; }
 }
 
 @media (max-width: 768px) {
     .inner { padding: 0 14px; }
     .topbar-inner { height: 52px; }
-    .stats-grid { grid-template-columns: 1fr; border-radius: var(--r-lg); }
-    .stat-tile { padding: 16px 18px 12px; border-radius: 0 !important; }
-    .stat-tile:first-child { border-radius: var(--r-lg) var(--r-lg) 0 0 !important; }
-    .stat-tile:last-child  { border-radius: 0 0 var(--r-lg) var(--r-lg) !important; }
+    .stat-tile { padding: 16px 18px 12px; }
     .stat-value { font-size: 20px; }
     .stats-section { padding-top: 20px; }
     .table-section { padding: 16px 0 32px; }
@@ -651,8 +660,58 @@ body::before {
 }
 
 /* ============================================================
-   ACCESSIBILITY & PRINT
+   LANDSCAPE MOBILE — tighter table for short/wide screens
    ============================================================ */
+@media (orientation: landscape) and (max-height: 500px) {
+    .inner { padding: 0 12px; }
+
+    /* Tighter nav */
+    .topbar-inner { height: 44px; }
+    .logo { font-size: 14px; }
+    .live-badge { padding: 3px 8px; font-size: 10px; }
+    .countdown-pill { padding: 3px 8px; font-size: 11px; }
+
+    /* Compact stats */
+    .stats-section { padding-top: 12px; }
+    .page-title { margin-bottom: 10px; font-size: 11px; }
+    .stat-tile { padding: 10px 14px 8px; gap: 4px; }
+    .stat-value { font-size: 16px; }
+    .stat-label { font-size: 9px; }
+    .stat-sub   { font-size: 10px; }
+
+    /* Compact table section */
+    .table-section { padding: 10px 0 20px; }
+    .table-header-bar { padding: 10px 14px; }
+    .table-title { font-size: 11px; }
+    .positions-count { font-size: 10px; padding: 3px 8px; }
+
+    /* Tighter th/td */
+    .positions-table thead th {
+        padding: 8px 8px;
+        font-size: 9px;
+        letter-spacing: 0.4px;
+    }
+    .positions-table thead th:first-child { padding-left: 14px; }
+    .positions-table thead th:last-child  { padding-right: 14px; }
+
+    .positions-table td {
+        padding: 9px 8px;
+        font-size: 11.5px;
+    }
+    .positions-table td:first-child { padding-left: 14px; }
+    .positions-table td:last-child  { padding-right: 14px; }
+
+    /* Smaller cell content */
+    .strategy-name { font-size: 11px; }
+    .symbol-cell   { font-size: 11.5px; }
+    .mono-cell     { font-size: 11px; }
+    .expiry-cell   { font-size: 10.5px; }
+    .qty-cell      { font-size: 11px; }
+
+    .type-badge { padding: 2px 6px; font-size: 9.5px; }
+
+    .pnl-badge { padding: 3px 8px; font-size: 11px; }
+}
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
         animation-duration: 0.01ms !important;

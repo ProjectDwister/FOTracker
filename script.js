@@ -33,6 +33,7 @@ const COLUMNS = {
 
 let allPositions = [];    // open only (no exit date)
 let closedPositions = []; // closed only (has exit date)
+let todayPnL = null;      // extracted from labelled summary row
 let countdown = CONFIG.REFRESH_INTERVAL / 1000;
 
 // ============================================================
@@ -85,6 +86,19 @@ async function loadData() {
 // ============================================================
 
 function processData(rows) {
+    // Scan every row for the Today's P&L summary label in column M (index 12)
+    // The label text must match exactly (trimmed, case-insensitive)
+    todayPnL = null;
+    const TODAY_LABEL = "today's p&l  (vs yesterday's eod)";
+    for (const row of rows) {
+        const label = (row[12] || '').toString().trim().toLowerCase();
+        if (label === TODAY_LABEL) {
+            const raw = (row[13] || '').toString().replace(/[₹$,\s]/g, '').trim();
+            todayPnL = raw && raw !== '-' ? parseFloat(raw) : 0;
+            break;
+        }
+    }
+
     const validRows = rows.filter(row => {
         if (!row || row.length < 3) return false;
         return (row[COLUMNS.SYMBOL] || '').toString().trim() !== '';
@@ -200,6 +214,11 @@ function updateStats() {
     document.getElementById('openPnL').innerHTML   = fmt(openPnL);
     document.getElementById('closedPnL').innerHTML = fmt(closedPnL);
     document.getElementById('totalPnL').innerHTML  = fmt(totalPnL);
+
+    const todayEl = document.getElementById('todayPnL');
+    if (todayEl) {
+        todayEl.innerHTML = todayPnL !== null ? fmt(todayPnL) : '<span style="color:var(--text-3)">—</span>';
+    }
 }
 
 function updateLastUpdated() {
