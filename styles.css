@@ -126,12 +126,25 @@ body::before {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-family: var(--font-display);
-    font-size: 17px;
-    font-weight: 800;
-    letter-spacing: -0.3px;
-    color: var(--text-1);
     text-decoration: none;
+}
+
+.logo-text {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.4px;
+    background: linear-gradient(
+        to bottom,
+        #FF9933 0%,   #FF9933 33.3%,   /* saffron */
+        #ffffff 33.3%, #ffffff 66.6%,   /* white   */
+        #138808 66.6%, #138808 100%     /* green   */
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    line-height: 1;
 }
 
 .logo-dot {
@@ -691,6 +704,7 @@ body::before {
     /* Tighter nav */
     .topbar-inner { height: 44px; }
     .logo { font-size: 14px; }
+    .logo-text { font-size: 16px; }
     .live-badge { padding: 3px 8px; font-size: 10px; }
     .updated-pill { padding: 3px 8px; font-size: 10px; }
 
