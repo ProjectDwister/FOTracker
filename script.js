@@ -130,7 +130,8 @@ function processData(rows) {
 function renderTable() {
     const tbody = document.getElementById('tableBody');
     const count = allPositions.length;
-    document.getElementById('positionsCount').textContent = `${count} row${count !== 1 ? 's' : ''}`;
+    const countEl = document.getElementById('positionsCount');
+    if (countEl) countEl.textContent = `${count} row${count !== 1 ? 's' : ''}`;
 
     tbody.innerHTML = allPositions.map((p, i) => {
         const pnlNum   = parseFloat(p.pnl) || 0;
