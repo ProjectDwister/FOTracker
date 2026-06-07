@@ -131,7 +131,7 @@ body::before {
 
 .logo-text {
     font-family: var(--font-display);
-    font-size: 22px;
+    font-size: 28px;
     font-weight: 800;
     letter-spacing: -0.4px;
     background: linear-gradient(
@@ -253,6 +253,16 @@ body::before {
     background: var(--surface-2);
 }
 .stat-tile--today:hover { background: var(--surface-3); }
+
+/* Fade in/out pulse — Today's P&L only */
+@keyframes fade-pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.25; }
+}
+
+#todayPnL {
+    animation: fade-pulse 2.5s ease-in-out infinite;
+}
 
 .stat-tile:first-child { border-radius: var(--r-xl) 0 0 var(--r-xl); }
 .stat-tile:last-child  { border-radius: 0 var(--r-xl) var(--r-xl) 0; }
