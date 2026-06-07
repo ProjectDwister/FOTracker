@@ -140,6 +140,7 @@ function renderTable() {
         return `<tr style="animation-delay:${i * 0.04}s">
             <td><span class="strategy-name">${esc(p.strategy)}</span></td>
             <td>${fmtDerivative(p)}</td>
+            <td class="qty-cell text-right">${fmtQty(p.qty)}</td>
             <td class="mono-cell text-right">${fmtPrice(p.entryPrice)}</td>
             <td class="mono-cell ltp text-right">${fmtPrice(p.ltp)}</td>
             <td><span class="pnl-badge ${pnlClass}">${pnlSign}₹${fmtPnLAbs(pnlNum)}</span></td>
@@ -169,6 +170,7 @@ function renderCards() {
                 <span class="pnl-badge ${pnlClass}">${pnlSign}₹${fmtPnLAbs(pnlNum)}</span>
             </div>
             <div class="card-bottom-left">
+                <span class="card-meta">Qty ${fmtQty(p.qty)}</span>
                 <span class="card-entry">Entry ₹${fmtPrice(p.entryPrice)}</span>
             </div>
             <div class="card-bottom-right">
@@ -263,7 +265,6 @@ function fmtDerivative(p) {
     const typeStr  = p.type ? `<span class="type-label type-${esc(p.type.toUpperCase())}">${esc(p.type.toUpperCase())}</span>` : '';
     const strike   = (!isFut && p.strike) ? `<span class="deriv-strike">${fmtStrike(p.strike)}</span>` : '';
     const expiry   = fmtExpiry(p.expiry);
-    const qty      = fmtQty(p.qty);
 
     return `<div class="deriv-cell">
         <div class="deriv-top">
@@ -271,7 +272,7 @@ function fmtDerivative(p) {
             ${typeStr}
             ${strike}
         </div>
-        <div class="deriv-sub">${expiry ? expiry + ' &nbsp;·&nbsp; ' : ''}Qty&nbsp;${qty}</div>
+        ${expiry ? `<div class="deriv-sub">${expiry}</div>` : ''}
     </div>`;
 }
 

@@ -23,9 +23,8 @@
                     <span class="live-dot"></span>
                     <span class="label">Live</span>
                 </div>
-                <div class="countdown-pill">
-                    <span class="label">Refresh in</span>
-                    <span id="countdown">5:00</span>
+                <div class="updated-pill">
+                    <span id="lastUpdated">—</span>
                 </div>
             </div>
         </div>
@@ -39,22 +38,18 @@
                 <div class="stat-tile">
                     <span class="stat-label">Open P&amp;L</span>
                     <span class="stat-value" id="openPnL">—</span>
-                    <span class="stat-sub">Unrealised</span>
                 </div>
                 <div class="stat-tile">
                     <span class="stat-label">Closed P&amp;L</span>
                     <span class="stat-value" id="closedPnL">—</span>
-                    <span class="stat-sub">Realised</span>
                 </div>
                 <div class="stat-tile stat-tile--total">
                     <span class="stat-label">Total P&amp;L</span>
                     <span class="stat-value" id="totalPnL">—</span>
-                    <span class="stat-sub" id="lastUpdated">—</span>
                 </div>
                 <div class="stat-tile stat-tile--today">
                     <span class="stat-label">Today's P&amp;L</span>
                     <span class="stat-value" id="todayPnL">—</span>
-                    <span class="stat-sub">vs yesterday's EOD</span>
                 </div>
             </div>
         </div>
@@ -99,6 +94,7 @@
                             <tr>
                                 <th>Strategy</th>
                                 <th>Derivative</th>
+                                <th class="text-right">Qty</th>
                                 <th class="text-right">Entry</th>
                                 <th class="text-right">LTP</th>
                                 <th>P&amp;L</th>
