@@ -135,16 +135,27 @@ body::before {
     font-weight: 800;
     letter-spacing: -0.4px;
     background: linear-gradient(
-        to right,
-        #888888 0%,
+        90deg,
+        #444 0%,
+        #888 20%,
+        #c0c0c0 35%,
         #ffffff 50%,
-        #888888 100%
+        #c0c0c0 65%,
+        #888 80%,
+        #444 100%
     );
+    background-size: 200% auto;
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
     line-height: 1;
+    animation: silver-shimmer 8s linear infinite;
+}
+
+@keyframes silver-shimmer {
+    0%   { background-position: 200% center; }
+    100% { background-position: -200% center; }
 }
 
 .logo-dot {
@@ -203,6 +214,49 @@ body::before {
 }
 
 #lastUpdated { color: var(--text-2); font-weight: 500; }
+
+/* ============================================================
+   STATS TICKER — portrait mobile only
+   On mobile the stats grid becomes a single scrolling ticker row.
+   ============================================================ */
+@keyframes ticker-scroll {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+.stats-ticker {
+    display: none; /* hidden on desktop */
+}
+
+.stats-ticker-track {
+    display: flex;
+    gap: 0;
+    animation: ticker-scroll 18s linear infinite;
+    width: max-content;
+}
+
+.ticker-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 24px;
+    border-right: 1px solid var(--border);
+    white-space: nowrap;
+}
+
+.ticker-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-3);
+}
+
+.ticker-value {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+}
 
 /* ============================================================
    HERO / STATS ROW
@@ -690,22 +744,21 @@ body::before {
     .inner { padding: 0 20px; }
 }
 
-/* Portrait mobile — 2×2 grid */
+/* Portrait mobile — ticker replaces static grid */
 @media (max-width: 768px) {
     .inner { padding: 0 14px; }
     .topbar-inner { height: 52px; }
     .logo-text { font-size: 20px; }
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .stats-grid { display: none; }
+    .stats-ticker {
+        display: block;
+        overflow: hidden;
+        border: 1px solid var(--border);
         border-radius: var(--r-lg);
+        background: var(--surface);
+        padding: 10px 0;
     }
-    .stat-tile { padding: 14px 16px 12px; }
-    .stat-tile:first-child  { border-radius: var(--r-lg) 0 0 0; }
-    .stat-tile:nth-child(2) { border-radius: 0 var(--r-lg) 0 0; }
-    .stat-tile:nth-child(3) { border-radius: 0 0 0 var(--r-lg); }
-    .stat-tile:last-child   { border-radius: 0 0 var(--r-lg) 0; }
-    .stat-value { font-size: 16px; }
-    .stats-section { padding-top: 20px; }
+    .stats-section { padding-top: 16px; }
     .table-section { padding: 16px 0 32px; }
     .footer-inner { justify-content: center; }
     .page-title { margin-bottom: 16px; }
@@ -733,6 +786,8 @@ body::before {
     .updated-pill { padding: 3px 8px; font-size: 10px; }
 
     /* Compact stats — 4 in one row */
+    .stats-ticker { display: none; }
+    .stats-grid { display: grid; }
     .stats-section { padding-top: 10px; }
     .page-title { margin-bottom: 8px; font-size: 11px; }
     .stats-grid {

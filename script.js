@@ -301,6 +301,24 @@ function updateStats() {
     prevStatValues.openPnL  = openPnL;
     prevStatValues.totalPnL = totalPnL;
     prevStatValues.todayPnL = todayPnL;
+
+    // Update mobile ticker (both copies for seamless loop)
+    const tickerFmt = num => {
+        if (num === null) return '—';
+        const sign = num < 0 ? '−' : '';
+        const cls  = num >= 0 ? 'positive' : 'negative';
+        return `<span class="${cls}">${sign}₹${fmtPnLAbs(num)}</span>`;
+    };
+    ['', '2'].forEach(suffix => {
+        const o = document.getElementById(`tickerOpen${suffix}`);
+        const c = document.getElementById(`tickerClosed${suffix}`);
+        const t = document.getElementById(`tickerTotal${suffix}`);
+        const d = document.getElementById(`tickerToday${suffix}`);
+        if (o) o.innerHTML = tickerFmt(openPnL);
+        if (c) c.innerHTML = tickerFmt(closedPnL);
+        if (t) t.innerHTML = tickerFmt(totalPnL);
+        if (d) d.innerHTML = tickerFmt(todayPnL);
+    });
 }
 
 function updateLastUpdated() {
@@ -434,6 +452,15 @@ function hideAllStates() {
 // ============================================================
 // INIT
 // ============================================================
+
+// Set table header month/year
+(function() {
+    const el = document.getElementById('tableMonthYear');
+    if (el) {
+        const now = new Date();
+        el.textContent = now.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }).toUpperCase();
+    }
+})();
 
 loadData();
 setInterval(loadData, CONFIG.REFRESH_INTERVAL);

@@ -51,6 +51,46 @@
                     <span class="stat-value" id="todayPnL">—</span>
                 </div>
             </div>
+
+            <!-- Mobile ticker — duplicated for seamless loop -->
+            <div class="stats-ticker">
+                <div class="stats-ticker-track" id="tickerTrack">
+                    <!-- first copy -->
+                    <div class="ticker-item">
+                        <span class="ticker-label">Open P&amp;L</span>
+                        <span class="ticker-value" id="tickerOpen">—</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span class="ticker-label">Closed P&amp;L</span>
+                        <span class="ticker-value" id="tickerClosed">—</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span class="ticker-label">Total P&amp;L</span>
+                        <span class="ticker-value" id="tickerTotal">—</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span class="ticker-label">Today</span>
+                        <span class="ticker-value" id="tickerToday">—</span>
+                    </div>
+                    <!-- duplicate for seamless loop -->
+                    <div class="ticker-item">
+                        <span class="ticker-label">Open P&amp;L</span>
+                        <span class="ticker-value" id="tickerOpen2">—</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span class="ticker-label">Closed P&amp;L</span>
+                        <span class="ticker-value" id="tickerClosed2">—</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span class="ticker-label">Total P&amp;L</span>
+                        <span class="ticker-value" id="tickerTotal2">—</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span class="ticker-label">Today</span>
+                        <span class="ticker-value" id="tickerToday2">—</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -83,7 +123,7 @@
             <!-- Table -->
             <div class="table-wrapper">
                 <div class="table-header-bar">
-                    <span class="table-title">Open Positions</span>
+                    <span class="table-title">Open Positions &mdash; <span id="tableMonthYear"></span></span>
                 </div>
                 <!-- Desktop: scrollable table -->
                 <div class="table-scroll">
