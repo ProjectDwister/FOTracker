@@ -34,6 +34,7 @@ const COLUMNS = {
 let allPositions    = [];   // open only (no exit date)
 let closedPositions = [];   // closed only (has exit date)
 let todayPnL        = null; // extracted from labelled summary row
+let prevPnLMap      = new Map(); // symbol+strike+expiry → pnl from last cycle
 let countdown       = CONFIG.REFRESH_INTERVAL / 1000;
 
 // ============================================================
@@ -119,8 +120,27 @@ function processData(rows) {
         };
     };
 
+    // Snapshot current P&L before overwriting positions
+    const prevSnapshot = new Map(prevPnLMap);
+
     allPositions    = validRows.filter(row => !(row[COLUMNS.EXIT_DATE] || '').toString().trim()).map(mapRow);
     closedPositions = validRows.filter(row =>  (row[COLUMNS.EXIT_DATE] || '').toString().trim()).map(mapRow);
+
+    // Attach delta vs previous cycle to each open position
+    allPositions.forEach(p => {
+        const prev = prevSnapshot.get(posKey(p));
+        const curr = parseFloat(p.pnl) || 0;
+        p.pnlDelta = prev !== undefined ? curr - prev : null;
+    });
+
+    // Save current as next prev
+    prevPnLMap = new Map();
+    allPositions.forEach(p => prevPnLMap.set(posKey(p), parseFloat(p.pnl) || 0));
+}
+
+// Unique key per position for P&L delta tracking
+function posKey(p) {
+    return `${p.symbol}|${p.type}|${p.strike}|${p.expiry}`;
 }
 
 // ============================================================
@@ -133,20 +153,52 @@ function renderTable() {
     const countEl = document.getElementById('positionsCount');
     if (countEl) countEl.textContent = `${count} row${count !== 1 ? 's' : ''}`;
 
+    // Track whether any P&L changed for haptic
+    let anyChanged = false;
+
     tbody.innerHTML = allPositions.map((p, i) => {
         const pnlNum   = parseFloat(p.pnl) || 0;
         const pnlClass = pnlNum >= 0 ? 'positive' : 'negative';
         const pnlSign  = pnlNum < 0 ? '−' : '';
 
-        return `<tr style="animation-delay:${i * 0.04}s">
+        // Delta arrow
+        let deltaHtml = '';
+        let flashClass = '';
+        if (p.pnlDelta !== null && Math.abs(p.pnlDelta) >= 0.01) {
+            anyChanged = true;
+            if (p.pnlDelta > 0) {
+                deltaHtml = `<span class="delta delta-up">▲</span>`;
+                flashClass = 'flash-green';
+            } else {
+                deltaHtml = `<span class="delta delta-down">▼</span>`;
+                flashClass = 'flash-red';
+            }
+        }
+
+        return `<tr class="${flashClass}" style="animation-delay:${i * 0.04}s" data-key="${esc(posKey(p))}">
             <td><span class="strategy-name">${esc(p.strategy)}</span></td>
             <td>${fmtDerivative(p)}</td>
             <td class="qty-cell text-right">${fmtQty(p.qty)}</td>
             <td class="mono-cell text-right">${fmtPrice(p.entryPrice)}</td>
             <td class="mono-cell ltp text-right">${fmtPrice(p.ltp)}</td>
-            <td><span class="pnl-badge ${pnlClass}">${pnlSign}₹${fmtPnLAbs(pnlNum)}</span></td>
+            <td>
+                <span class="pnl-badge ${pnlClass}">${pnlSign}₹${fmtPnLAbs(pnlNum)}</span>
+                ${deltaHtml}
+            </td>
         </tr>`;
     }).join('');
+
+    // Remove flash class after animation completes
+    if (anyChanged) {
+        setTimeout(() => {
+            tbody.querySelectorAll('.flash-green, .flash-red').forEach(el => {
+                el.classList.remove('flash-green', 'flash-red');
+            });
+        }, 1200);
+
+        // Haptic on mobile — single short pulse if any P&L changed
+        if (navigator.vibrate) navigator.vibrate(40);
+    }
 }
 
 // ============================================================
@@ -162,13 +214,24 @@ function renderCards() {
         const pnlClass = pnlNum >= 0 ? 'positive' : 'negative';
         const pnlSign  = pnlNum < 0 ? '−' : '';
 
-        return `<div class="position-card" style="animation-delay:${i * 0.04}s">
+        let deltaHtml = '';
+        if (p.pnlDelta !== null && Math.abs(p.pnlDelta) >= 0.01) {
+            deltaHtml = p.pnlDelta > 0
+                ? `<span class="delta delta-up">▲</span>`
+                : `<span class="delta delta-down">▼</span>`;
+        }
+
+        const flashClass = (p.pnlDelta !== null && Math.abs(p.pnlDelta) >= 0.01)
+            ? (p.pnlDelta > 0 ? 'flash-green' : 'flash-red') : '';
+
+        return `<div class="position-card ${flashClass}" style="animation-delay:${i * 0.04}s">
             <div class="card-top-left">
                 ${fmtDerivative(p)}
                 <span class="card-strategy">${esc(p.strategy)}</span>
             </div>
             <div class="card-top-right">
                 <span class="pnl-badge ${pnlClass}">${pnlSign}₹${fmtPnLAbs(pnlNum)}</span>
+                ${deltaHtml}
             </div>
             <div class="card-bottom-left">
                 <span class="card-meta">Qty ${fmtQty(p.qty)}</span>
@@ -180,6 +243,13 @@ function renderCards() {
             </div>
         </div>`;
     }).join('');
+
+    // Clear flash after animation
+    setTimeout(() => {
+        list.querySelectorAll('.flash-green, .flash-red').forEach(el => {
+            el.classList.remove('flash-green', 'flash-red');
+        });
+    }, 1200);
 }
 
 // ============================================================
