@@ -262,7 +262,17 @@ body::before {
    HERO / STATS ROW
    ============================================================ */
 .stats-section {
-    padding: 36px 0 0;
+    padding: 0;
+    position: sticky;
+    top: 60px; /* topbar height */
+    z-index: 90;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+}
+
+.stats-section .inner {
+    padding-top: 12px;
+    padding-bottom: 12px;
 }
 
 .page-title {
@@ -338,8 +348,11 @@ body::before {
     color: var(--text-1);
 }
 
-.stat-value .positive { color: var(--green); }
-.stat-value .negative { color: var(--red); }
+.stat-value { }  /* colour applied via child .positive / .negative spans */
+
+/* Global colour classes — used in stat tiles, ticker, and P&L badges */
+.positive { color: var(--green); }
+.negative { color: var(--red); }
 
 /* ============================================================
    TABLE SECTION
@@ -749,6 +762,7 @@ body::before {
     .inner { padding: 0 14px; }
     .topbar-inner { height: 52px; }
     .logo-text { font-size: 20px; }
+    .stats-section { top: 52px; }
     .stats-grid { display: none; }
     .stats-ticker {
         display: block;
@@ -758,7 +772,6 @@ body::before {
         background: var(--surface);
         padding: 10px 0;
     }
-    .stats-section { padding-top: 16px; }
     .table-section { padding: 16px 0 32px; }
     .footer-inner { justify-content: center; }
     .page-title { margin-bottom: 16px; }
@@ -780,6 +793,7 @@ body::before {
 
     /* Tighter nav */
     .topbar-inner { height: 44px; }
+    .stats-section { top: 44px; }
     .logo { font-size: 14px; }
     .logo-text { font-size: 16px; }
     .live-badge { padding: 3px 8px; font-size: 10px; }
