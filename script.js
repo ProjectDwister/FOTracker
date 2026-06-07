@@ -218,8 +218,7 @@ function renderCards() {
                 <span class="card-entry">Entry ₹${fmtPrice(p.entryPrice)}</span>
             </div>
             <div class="card-bottom-right">
-                <span class="card-ltp">₹${fmtPrice(p.ltp)}</span>
-                <div class="card-meta" style="margin-top:2px">LTP</div>
+                <span class="card-ltp"><span class="card-meta">LTP </span>₹${fmtPrice(p.ltp)}</span>
             </div>
         </div>`;
     }).join('');
