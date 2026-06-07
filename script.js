@@ -161,18 +161,11 @@ function renderTable() {
         const pnlClass = pnlNum >= 0 ? 'positive' : 'negative';
         const pnlSign  = pnlNum < 0 ? '−' : '';
 
-        // Delta arrow
-        let deltaHtml = '';
+        // Flash class for row background
         let flashClass = '';
         if (p.pnlDelta !== null && Math.abs(p.pnlDelta) >= 0.01) {
             anyChanged = true;
-            if (p.pnlDelta > 0) {
-                deltaHtml = `<span class="delta delta-up">▲</span>`;
-                flashClass = 'flash-green';
-            } else {
-                deltaHtml = `<span class="delta delta-down">▼</span>`;
-                flashClass = 'flash-red';
-            }
+            flashClass = p.pnlDelta > 0 ? 'flash-green' : 'flash-red';
         }
 
         return `<tr class="${flashClass}" style="animation-delay:${i * 0.04}s" data-key="${esc(posKey(p))}">
@@ -181,10 +174,7 @@ function renderTable() {
             <td class="qty-cell text-right">${fmtQty(p.qty)}</td>
             <td class="mono-cell text-right">${fmtPrice(p.entryPrice)}</td>
             <td class="mono-cell ltp text-right">${fmtPrice(p.ltp)}</td>
-            <td>
-                <span class="pnl-badge ${pnlClass}">${pnlSign}₹${fmtPnLAbs(pnlNum)}</span>
-                ${deltaHtml}
-            </td>
+            <td><span class="pnl-badge ${pnlClass}">${pnlSign}₹${fmtPnLAbs(pnlNum)}</span></td>
         </tr>`;
     }).join('');
 
@@ -214,13 +204,6 @@ function renderCards() {
         const pnlClass = pnlNum >= 0 ? 'positive' : 'negative';
         const pnlSign  = pnlNum < 0 ? '−' : '';
 
-        let deltaHtml = '';
-        if (p.pnlDelta !== null && Math.abs(p.pnlDelta) >= 0.01) {
-            deltaHtml = p.pnlDelta > 0
-                ? `<span class="delta delta-up">▲</span>`
-                : `<span class="delta delta-down">▼</span>`;
-        }
-
         const flashClass = (p.pnlDelta !== null && Math.abs(p.pnlDelta) >= 0.01)
             ? (p.pnlDelta > 0 ? 'flash-green' : 'flash-red') : '';
 
@@ -231,7 +214,6 @@ function renderCards() {
             </div>
             <div class="card-top-right">
                 <span class="pnl-badge ${pnlClass}">${pnlSign}₹${fmtPnLAbs(pnlNum)}</span>
-                ${deltaHtml}
             </div>
             <div class="card-bottom-left">
                 <span class="card-meta">Qty ${fmtQty(p.qty)}</span>
