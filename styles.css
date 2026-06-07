@@ -469,16 +469,6 @@ body::before {
     color: var(--text-2);
 }
 
-/* P&L delta arrows */
-.delta {
-    font-size: 10px;
-    font-weight: 700;
-    margin-left: 5px;
-    vertical-align: middle;
-}
-.delta-up   { color: var(--green); }
-.delta-down { color: var(--red); }
-
 /* Row flash on P&L change */
 @keyframes flash-green-anim {
     0%   { background: rgba(0, 214, 143, 0.18); }
