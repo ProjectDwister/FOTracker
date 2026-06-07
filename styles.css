@@ -135,10 +135,10 @@ body::before {
     font-weight: 800;
     letter-spacing: -0.4px;
     background: linear-gradient(
-        to bottom,
-        #FF9933 0%,   #FF9933 33.3%,   /* saffron */
-        #ffffff 33.3%, #ffffff 66.6%,   /* white   */
-        #138808 66.6%, #138808 100%     /* green   */
+        to right,
+        #888888 0%,
+        #ffffff 50%,
+        #888888 100%
     );
     -webkit-background-clip: text;
     background-clip: text;
