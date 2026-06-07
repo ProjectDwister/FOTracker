@@ -159,7 +159,6 @@ function renderTable() {
     tbody.innerHTML = allPositions.map((p, i) => {
         const pnlNum   = parseFloat(p.pnl) || 0;
         const pnlClass = pnlNum >= 0 ? 'positive' : 'negative';
-        const pnlSign  = pnlNum < 0 ? '−' : '';
 
         // Flash class for row background
         let flashClass = '';
@@ -174,7 +173,7 @@ function renderTable() {
             <td class="qty-cell text-right">${fmtQty(p.qty)}</td>
             <td class="mono-cell text-right">${fmtPrice(p.entryPrice)}</td>
             <td class="mono-cell ltp text-right">${fmtPrice(p.ltp)}</td>
-            <td><span class="pnl-badge ${pnlClass}">${pnlSign}₹${fmtPnLAbs(pnlNum)}</span></td>
+            <td><span class="pnl-badge ${pnlClass}">₹${fmtPnLAbs(pnlNum)}</span></td>
         </tr>`;
     }).join('');
 
@@ -202,7 +201,6 @@ function renderCards() {
     list.innerHTML = allPositions.map((p, i) => {
         const pnlNum   = parseFloat(p.pnl) || 0;
         const pnlClass = pnlNum >= 0 ? 'positive' : 'negative';
-        const pnlSign  = pnlNum < 0 ? '−' : '';
 
         const flashClass = (p.pnlDelta !== null && Math.abs(p.pnlDelta) >= 0.01)
             ? (p.pnlDelta > 0 ? 'flash-green' : 'flash-red') : '';
@@ -213,7 +211,7 @@ function renderCards() {
                 <span class="card-strategy">${esc(p.strategy)}</span>
             </div>
             <div class="card-top-right">
-                <span class="pnl-badge ${pnlClass}">${pnlSign}₹${fmtPnLAbs(pnlNum)}</span>
+                <span class="pnl-badge ${pnlClass}">₹${fmtPnLAbs(pnlNum)}</span>
             </div>
             <div class="card-bottom-left">
                 <span class="card-meta">Qty ${fmtQty(p.qty)}</span>
@@ -271,9 +269,8 @@ function animateStat(elId, oldVal, newVal) {
 }
 
 function fmtStat(num) {
-    const sign = num < 0 ? '−' : '';
-    const cls  = num >= 0 ? 'positive' : 'negative';
-    return `<span class="${cls}">${sign}₹${fmtPnLAbs(num)}</span>`;
+    const cls = num >= 0 ? 'positive' : 'negative';
+    return `<span class="${cls}">₹${fmtPnLAbs(num)}</span>`;
 }
 
 function updateStats() {
@@ -305,9 +302,8 @@ function updateStats() {
     // Update mobile ticker (both copies for seamless loop)
     const tickerFmt = num => {
         if (num === null) return '—';
-        const sign = num < 0 ? '−' : '';
-        const cls  = num >= 0 ? 'positive' : 'negative';
-        return `<span class="${cls}">${sign}₹${fmtPnLAbs(num)}</span>`;
+        const cls = num >= 0 ? 'positive' : 'negative';
+        return `<span class="${cls}">₹${fmtPnLAbs(num)}</span>`;
     };
     ['', '2'].forEach(suffix => {
         const o = document.getElementById(`tickerOpen${suffix}`);
