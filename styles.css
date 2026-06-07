@@ -302,6 +302,8 @@ body::before {
     flex-direction: column;
     gap: 6px;
     transition: background 0.2s;
+    align-items: center;
+    text-align: center;
 }
 
 .stat-tile:hover { background: var(--surface-2); }
