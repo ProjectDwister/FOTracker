@@ -209,7 +209,7 @@ function updateStats() {
 
 function updateLastUpdated() {
     const t = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
-    document.getElementById('lastUpdated').textContent = `Updated ${t}`;
+    document.getElementById('lastUpdated').textContent = t;
 }
 
 // ============================================================
@@ -253,20 +253,22 @@ function fmtExpiry(dateStr) {
 }
 
 // Builds the combined Derivative cell:
-//   Symbol (coloured)  [CE/PE badge]  Strike  ·  Expiry  ·  Qty
-// FUT rows omit badge; all rows include expiry + qty as sub-line
+//   top line:  SYMBOL  CE/PE/FUT  Strike
+//   sub line:  dd-mm  ·  Qty N
+// CE/PE/FUT shown as plain coloured text (type-label), no box/padding.
+// FUT rows omit strike (nothing after the label).
 function fmtDerivative(p) {
-    const isFut      = p.type.toUpperCase() === 'FUT';
-    const dirClass   = p.direction.toLowerCase() === 'long' ? 'long' : 'short';
-    const typeBadge  = isFut ? '' : `<span class="type-badge type-${esc(p.type)}">${esc(p.type)}</span>`;
-    const strike     = (!isFut && p.strike) ? `<span class="deriv-strike">${fmtStrike(p.strike)}</span>` : '';
-    const expiry     = fmtExpiry(p.expiry);
-    const qty        = fmtQty(p.qty);
+    const isFut    = p.type.toUpperCase() === 'FUT';
+    const dirClass = p.direction.toLowerCase() === 'long' ? 'long' : 'short';
+    const typeStr  = p.type ? `<span class="type-label type-${esc(p.type.toUpperCase())}">${esc(p.type.toUpperCase())}</span>` : '';
+    const strike   = (!isFut && p.strike) ? `<span class="deriv-strike">${fmtStrike(p.strike)}</span>` : '';
+    const expiry   = fmtExpiry(p.expiry);
+    const qty      = fmtQty(p.qty);
 
     return `<div class="deriv-cell">
         <div class="deriv-top">
             <span class="symbol-cell ${dirClass}">${esc(p.symbol)}</span>
-            ${typeBadge}
+            ${typeStr}
             ${strike}
         </div>
         <div class="deriv-sub">${expiry ? expiry + ' &nbsp;·&nbsp; ' : ''}Qty&nbsp;${qty}</div>

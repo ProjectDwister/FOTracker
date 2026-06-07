@@ -177,23 +177,19 @@ body::before {
     box-shadow: 0 0 8px var(--green);
 }
 
-.countdown-pill {
+.updated-pill {
     font-family: var(--font-mono);
     font-size: 12px;
-    color: var(--text-3);
+    color: var(--text-2);
     background: var(--surface-2);
     border: 1px solid var(--border);
     padding: 5px 10px;
     border-radius: 100px;
     display: flex;
     align-items: center;
-    gap: 6px;
 }
 
-.countdown-pill .label { color: var(--text-3); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
-#countdown { color: var(--text-2); font-weight: 500; }
-
-/* (refresh button removed) */
+#lastUpdated { color: var(--text-2); font-weight: 500; }
 
 /* ============================================================
    HERO / STATS ROW
@@ -267,12 +263,6 @@ body::before {
 
 .stat-value .positive { color: var(--green); }
 .stat-value .negative { color: var(--red); }
-
-.stat-sub {
-    font-size: 10px;
-    color: var(--text-3);
-    margin-top: 1px;
-}
 
 /* ============================================================
    TABLE SECTION
@@ -420,21 +410,17 @@ body::before {
 .symbol-cell.long  { color: var(--green); }
 .symbol-cell.short { color: var(--red); }
 
-/* Type badge */
-.type-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 3px 10px;
-    border-radius: 5px;
+/* Type label — plain coloured text, no padding or border */
+.type-label {
+    font-family: var(--font-mono);
     font-size: 11px;
     font-weight: 700;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
+    letter-spacing: 0.4px;
 }
 
-.type-badge.type-CE  { background: var(--accent-dim);  color: var(--accent);  border: 1px solid rgba(61,127,255,0.25); }
-.type-badge.type-PE  { background: var(--amber-dim);   color: var(--amber);   border: 1px solid var(--amber-border); }
-.type-badge.type-FUT { background: var(--purple-dim);  color: var(--purple);  border: 1px solid var(--purple-border); }
+.type-label.type-CE  { color: var(--accent); }
+.type-label.type-PE  { color: var(--amber); }
+.type-label.type-FUT { color: var(--purple); }
 
 /* Mono cells */
 .mono-cell {
@@ -691,10 +677,8 @@ body::before {
 @media (max-width: 480px) {
     .inner { padding: 0 12px; }
     .logo-dot { display: none; }
-    .countdown-pill { display: none; }
     .stat-value { font-size: 15px; }
     .stat-label { font-size: 9px; }
-    .stat-sub   { font-size: 9px; }
     .stat-tile  { padding: 12px 12px 10px; }
 }
 
@@ -708,7 +692,7 @@ body::before {
     .topbar-inner { height: 44px; }
     .logo { font-size: 14px; }
     .live-badge { padding: 3px 8px; font-size: 10px; }
-    .countdown-pill { padding: 3px 8px; font-size: 11px; }
+    .updated-pill { padding: 3px 8px; font-size: 10px; }
 
     /* Compact stats — 4 in one row */
     .stats-section { padding-top: 10px; }
@@ -755,8 +739,6 @@ body::before {
     .deriv-sub     { font-size: 10px; }
     .deriv-strike  { font-size: 11px; }
     .qty-cell      { font-size: 11px; }
-
-    .type-badge { padding: 2px 6px; font-size: 9.5px; }
 
     .pnl-badge { padding: 3px 8px; font-size: 11px; }
 }
