@@ -256,28 +256,69 @@ function renderCards() {
 // STATS
 // ============================================================
 
+// Track previous stat values for ticker animation
+const prevStatValues = { openPnL: null, totalPnL: null, todayPnL: null };
+
+// Animate a stat element from oldVal → newVal over ~600ms (easeOutQuart)
+function animateStat(elId, oldVal, newVal) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+
+    // If no previous value, just set immediately
+    if (oldVal === null || oldVal === newVal) {
+        el.innerHTML = fmtStat(newVal);
+        return;
+    }
+
+    const duration = 600;
+    const startTime = performance.now();
+    const diff = newVal - oldVal;
+
+    function tick(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        // easeOutQuart — fast start, smooth finish
+        const eased = 1 - Math.pow(1 - progress, 4);
+        const current = oldVal + diff * eased;
+        el.innerHTML = fmtStat(current);
+        if (progress < 1) requestAnimationFrame(tick);
+        else el.innerHTML = fmtStat(newVal); // snap to exact final value
+    }
+
+    requestAnimationFrame(tick);
+}
+
+function fmtStat(num) {
+    const sign = num < 0 ? '−' : '';
+    const cls  = num >= 0 ? 'positive' : 'negative';
+    return `<span class="${cls}">${sign}₹${fmtPnLAbs(num)}</span>`;
+}
+
 function updateStats() {
     const sumPnL = arr => arr.reduce((s, p) => s + (parseFloat(p.pnl) || 0), 0);
     const openPnL   = sumPnL(allPositions);
     const closedPnL = sumPnL(closedPositions);
     const totalPnL  = openPnL + closedPnL;
 
-    const fmt = num => {
-        const sign = num < 0 ? '−' : '';
-        const cls  = num >= 0 ? 'positive' : 'negative';
-        return `<span class="${cls}">${sign}₹${fmtPnLAbs(num)}</span>`;
-    };
+    // Animate Open, Total, Today — set Closed directly (not requested)
+    animateStat('openPnL',  prevStatValues.openPnL,  openPnL);
+    animateStat('totalPnL', prevStatValues.totalPnL, totalPnL);
 
-    document.getElementById('openPnL').innerHTML   = fmt(openPnL);
-    document.getElementById('closedPnL').innerHTML = fmt(closedPnL);
-    document.getElementById('totalPnL').innerHTML  = fmt(totalPnL);
+    document.getElementById('closedPnL').innerHTML = fmtStat(closedPnL);
 
     const todayEl = document.getElementById('todayPnL');
     if (todayEl) {
-        todayEl.innerHTML = todayPnL !== null
-            ? fmt(todayPnL)
-            : '<span style="color:var(--text-3)">—</span>';
+        if (todayPnL !== null) {
+            animateStat('todayPnL', prevStatValues.todayPnL, todayPnL);
+        } else {
+            todayEl.innerHTML = '<span style="color:var(--text-3)">—</span>';
+        }
     }
+
+    // Save for next cycle
+    prevStatValues.openPnL  = openPnL;
+    prevStatValues.totalPnL = totalPnL;
+    prevStatValues.todayPnL = todayPnL;
 }
 
 function updateLastUpdated() {
