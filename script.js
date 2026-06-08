@@ -92,8 +92,15 @@ function processData(rows) {
     for (const row of rows) {
         const label = (row[12] || '').toString().trim().toLowerCase();
         if (label === TODAY_LABEL) {
-            const raw = (row[13] || '').toString().replace(/[₹$,\s]/g, '').trim();
-            todayPnL = raw && raw !== '-' ? parseFloat(raw) : 0;
+            const raw = (row[13] || '').toString().trim();
+            // Sheet returns "—" when Q1 (EOD snapshot) is empty
+            if (raw === '' || raw === '—' || raw === '-') {
+                todayPnL = null; // show — in the tile
+            } else {
+                const cleaned = raw.replace(/[₹$,\s]/g, '').trim();
+                const parsed  = parseFloat(cleaned);
+                todayPnL = isNaN(parsed) ? null : parsed;
+            }
             break;
         }
     }
