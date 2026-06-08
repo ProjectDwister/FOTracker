@@ -88,7 +88,7 @@ async function loadData() {
 function processData(rows) {
     // Find Today's P&L by scanning for its label in column M
     todayPnL = null;
-    const TODAY_LABEL = "today's p&l  (vs yesterday's eod)";
+    const TODAY_LABEL = "today";
     for (const row of rows) {
         const label = (row[12] || '').toString().trim().toLowerCase();
         if (label === TODAY_LABEL) {
