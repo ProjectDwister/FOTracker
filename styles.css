@@ -602,12 +602,12 @@ body::before {
     .card-list { display: block; }
 
     .position-card {
-        padding: 14px 16px;
+        padding: 9px 14px;
         border-bottom: 1px solid var(--border);
         display: grid;
         grid-template-columns: 1fr auto;
         grid-template-rows: auto auto;
-        gap: 6px 12px;
+        gap: 3px 10px;
         transition: background 0.12s ease;
     }
 
