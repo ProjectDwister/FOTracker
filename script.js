@@ -86,25 +86,26 @@ async function loadData() {
 // ============================================================
 
 function processData(rows) {
-    // Find Today's P&L by scanning for its label in column M
+    // Scan ALL rows for Today's P&L label in column M (index 12), value in N (index 13)
     todayPnL = null;
-    const TODAY_LABEL = "today";
-    for (const row of rows) {
-        // The summary rows have the label merged across cols A–M (index 0)
-        // and the value in col N (index 13)
-        const labelA = (row[0]  || '').toString().trim().toLowerCase();
+    const TODAY_LABEL = 'today';
+
+    for (let i = 0; i < rows.length; i++) {
+        const row    = rows[i];
         const labelM = (row[12] || '').toString().trim().toLowerCase();
-        const label  = labelA || labelM; // check both just in case
-        if (label === TODAY_LABEL) {
-            const raw = (row[13] || '').toString().trim();
-            // Sheet returns "—" when Q1 (EOD snapshot) is empty
-            if (raw === '' || raw === '—' || raw === '-') {
-                todayPnL = null;
-            } else {
-                const cleaned = raw.replace(/[₹$,\s]/g, '').trim();
-                const parsed  = parseFloat(cleaned);
-                todayPnL = isNaN(parsed) ? null : parsed;
-            }
+        const labelA = (row[0]  || '').toString().trim().toLowerCase();
+
+        // Debug: log every row that has content in M so we can see what the label actually is
+        if (labelM) console.log(`Row ${i + 2} col M: "${labelM}" | col N: "${row[13]}"`);
+
+        // Match on column M first, fall back to column A
+        const matched = labelM === TODAY_LABEL || labelA === TODAY_LABEL;
+        if (matched) {
+            const raw     = (row[13] || '').toString().trim();
+            const cleaned = raw.replace(/[₹$,\s]/g, '').trim();
+            const parsed  = parseFloat(cleaned);
+            todayPnL = (!cleaned || cleaned === '—' || cleaned === '-' || isNaN(parsed)) ? null : parsed;
+            console.log(`✅ Found Today P&L at row ${i + 2}: raw="${raw}" → parsed=${todayPnL}`);
             break;
         }
     }
