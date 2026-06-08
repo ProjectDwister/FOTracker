@@ -191,6 +191,13 @@ body::before {
     border: 1px solid var(--green-border);
     padding: 5px 10px;
     border-radius: 100px;
+    transition: all 0.4s ease;
+}
+
+.live-badge.closed {
+    color: var(--red);
+    background: var(--red-dim);
+    border-color: var(--red-border);
 }
 
 .live-dot {
@@ -199,6 +206,13 @@ body::before {
     border-radius: 50%;
     animation: pulse-dot 1.5s ease-in-out infinite;
     box-shadow: 0 0 8px var(--green);
+    transition: all 0.4s ease;
+}
+
+.live-badge.closed .live-dot {
+    background: var(--red);
+    box-shadow: 0 0 8px var(--red);
+    animation: none;
 }
 
 .updated-pill {
