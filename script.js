@@ -457,5 +457,36 @@ function hideAllStates() {
     }
 })();
 
+// Market status badge — Live (green) 9:00–17:00 IST, Closed (red) otherwise
+function updateMarketStatus() {
+    const badge = document.querySelector('.live-badge');
+    const label = badge ? badge.querySelector('.label') : null;
+    if (!badge || !label) return;
+
+    const now = new Date();
+    // Convert to IST (UTC+5:30)
+    const istOffset = 5.5 * 60; // minutes
+    const utcMin = now.getUTCHours() * 60 + now.getUTCMinutes();
+    const istMin = (utcMin + istOffset) % (24 * 60);
+
+    // Check IST weekday (0 = Sunday, 6 = Saturday)
+    const istDate = new Date(now.getTime() + istOffset * 60 * 1000);
+    const istDay  = istDate.getUTCDay();
+    const isWeekday = istDay >= 1 && istDay <= 5;
+
+    const isOpen = isWeekday && istMin >= 9 * 60 && istMin < 17 * 60;
+
+    if (isOpen) {
+        badge.classList.remove('closed');
+        label.textContent = 'Live';
+    } else {
+        badge.classList.add('closed');
+        label.textContent = 'Closed';
+    }
+}
+
+updateMarketStatus();
+setInterval(updateMarketStatus, 60 * 1000); // recheck every minute
+
 loadData();
 setInterval(loadData, CONFIG.REFRESH_INTERVAL);
