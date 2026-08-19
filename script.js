@@ -185,7 +185,7 @@ function renderTable() {
             <td class="qty-cell text-right">${fmtQty(p.qty)}</td>
             <td class="mono-cell text-right">${fmtPrice(p.entryPrice)}</td>
             <td class="mono-cell ltp text-right">${fmtPrice(p.ltp)}</td>
-            <td><span class="pnl-badge ${pnlClass}">₹${fmtPnLAbs(pnlNum)}</span></td>
+            <td><span class="pnl-badge ${pnlClass}">${fmtPnLAbs(pnlNum)}</span></td>
         </tr>`;
     }).join('');
 
@@ -223,14 +223,14 @@ function renderCards() {
                 <span class="card-strategy">${esc(p.strategy)}</span>
             </div>
             <div class="card-top-right">
-                <span class="pnl-badge ${pnlClass}">₹${fmtPnLAbs(pnlNum)}</span>
+                <span class="pnl-badge ${pnlClass}">${fmtPnLAbs(pnlNum)}</span>
             </div>
             <div class="card-bottom-left">
                 <span class="card-meta">Qty ${fmtQty(p.qty)}</span>
-                <span class="card-entry">Entry ₹${fmtPrice(p.entryPrice)}</span>
+                <span class="card-entry">Entry ${fmtPrice(p.entryPrice)}</span>
             </div>
             <div class="card-bottom-right">
-                <span class="card-ltp"><span class="card-meta">LTP </span>₹${fmtPrice(p.ltp)}</span>
+                <span class="card-ltp"><span class="card-meta">LTP </span>${fmtPrice(p.ltp)}</span>
             </div>
         </div>`;
     }).join('');
@@ -281,7 +281,7 @@ function animateStat(elId, oldVal, newVal) {
 
 function fmtStat(num) {
     const cls = num >= 0 ? 'positive' : 'negative';
-    return `<span class="${cls}">₹${fmtPnLAbs(num)}</span>`;
+    return `<span class="${cls}">${fmtPnLAbs(num)}</span>`;
 }
 
 function updateStats() {
@@ -314,7 +314,7 @@ function updateStats() {
     const tickerFmt = num => {
         if (num === null) return '—';
         const cls = num >= 0 ? 'positive' : 'negative';
-        return `<span class="${cls}">₹${fmtPnLAbs(num)}</span>`;
+        return `<span class="${cls}">${fmtPnLAbs(num)}</span>`;
     };
     ['', '2'].forEach(suffix => {
         const o = document.getElementById(`tickerOpen${suffix}`);
